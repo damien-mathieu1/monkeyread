@@ -1,0 +1,13 @@
+staged_file() { git diff --cached --name-only | grep -qE "(^|/)$1\$"; }
+staged_code() { git diff --cached --name-only | grep -qE '^(src/|public/|next\.config\.ts$|tsconfig\.json$|package\.json$|pnpm-lock\.yaml$)'; }
+
+if staged_file "package\.json" || staged_file "pnpm-lock\.yaml"; then
+  pnpm audit --audit-level=critical
+fi
+
+if staged_code; then
+  pnpm typecheck
+  pnpm build
+fi
+
+pnpm exec lint-staged

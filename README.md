@@ -27,18 +27,30 @@ Then open http://localhost:3000.
 
 ## Scripts
 
-| Command       | What it does                     |
-| ------------- | -------------------------------- |
-| `pnpm dev`    | Start the dev server             |
-| `pnpm build`  | Production build                 |
-| `pnpm lint`   | Lint with oxlint + @shadcn/lint  |
-| `pnpm format` | Format with oxfmt                |
+| Command          | What it does                    |
+| ---------------- | ------------------------------- |
+| `pnpm dev`       | Start the dev server            |
+| `pnpm build`     | Production build                |
+| `pnpm typecheck` | Type-check with tsc             |
+| `pnpm lint`      | Lint with oxlint + @shadcn/lint |
+| `pnpm format`    | Format with oxfmt               |
 
 ## Stack
 
 Next.js, Tailwind CSS v4, shadcn/ui (Radix), oxlint with [@shadcn/lint](https://github.com/shadcn-ui/lint), oxfmt.
 
 Component styles live in `src/components/ui` and the theme tokens in `src/app/globals.css`. The `shadcn/no-arbitrary-values` rule keeps app code on those tokens.
+
+## Contributing
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org) (`feat:`, `fix:`, `chore:`, ...), enforced by commitlint.
+
+Git hooks (husky) run on `pnpm install`:
+
+- `pre-commit`: `pnpm audit` when dependencies change, typecheck and build when app code changes, then oxlint and oxfmt on staged files (lint-staged)
+- `commit-msg`: commitlint
+
+CI runs the audit, lint, format check, commitlint (on PRs), typecheck and build. Releases are created by running the **Create Release** workflow by hand: it tags a CalVer version (`vYYYY.M.N`) and writes the changelog with git-cliff. Vercel deploys `main` on its own.
 
 ## Credits
 
