@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { chunkWords, msPerWord, tokenize, type RsvpWord } from "@/lib/rsvp";
+import { chunkWords, msPerWord, tokenize } from "@/lib/rsvp";
 
 export type RsvpSettings = {
   wpm: number;
   chunkSize: number;
+  punctuationPause: boolean;
 };
 
 export function useRsvp(text: string, settings: RsvpSettings) {
@@ -14,13 +15,20 @@ export function useRsvp(text: string, settings: RsvpSettings) {
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const playStartRef = useRef<number | null>(null);
 
-  const clear = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  }, []);
+  const done = chunks.length > 0 && index >= chunks.length;
 
-  useEffect(() => clear, [clear]);
+  useEffect(() => {
+    if (playing) {
+      playStartRef.current = performance.now();
+    } else if (playStartRef.current !== null) {
+      const start = playStartRef.current;
+      playStartRef.current = null;
+      setElapsedMs((ms) => ms + performance.now() - start);
+    }
+  }, [playing]);
 
   useEffect(() => {
     if (!playing) return;
@@ -28,46 +36,51 @@ export function useRsvp(text: string, settings: RsvpSettings) {
       setPlaying(false);
       return;
     }
-    const chunk = chunks[index];
-    const duration = chunk.reduce((sum, w) => sum + msPerWord(settings.wpm) * w.pauseMultiplier, 0);
-    timeoutRef.current = setTimeout(() => {
-      setIndex((i) => i + 1);
-    }, duration);
-    return clear;
-  }, [playing, index, chunks, settings.wpm, clear]);
-
-  const play = useCallback(() => {
-    if (index >= chunks.length) setIndex(0);
-    setPlaying(true);
-  }, [index, chunks.length]);
-
-  const pause = useCallback(() => setPlaying(false), []);
+    const base = msPerWord(settings.wpm);
+    const duration = chunks[index].reduce(
+      (sum, w) => sum + base * (settings.punctuationPause ? w.pauseMultiplier : 1),
+      0,
+    );
+    const id = setTimeout(() => setIndex((i) => i + 1), duration);
+    return () => clearTimeout(id);
+  }, [playing, index, chunks, settings.wpm, settings.punctuationPause]);
 
   const reset = useCallback(() => {
     setPlaying(false);
     setIndex(0);
+    setElapsedMs(0);
+    playStartRef.current = null;
   }, []);
 
-  const seek = useCallback(
-    (i: number) => {
-      setIndex(Math.max(0, Math.min(i, chunks.length)));
-    },
+  useEffect(reset, [chunks, reset]);
+
+  const toggle = useCallback(() => {
+    if (done) {
+      reset();
+      setPlaying(true);
+      return;
+    }
+    setPlaying((p) => !p);
+  }, [done, reset]);
+
+  const step = useCallback(
+    (delta: number) => setIndex((i) => Math.max(0, Math.min(i + delta, chunks.length - 1))),
     [chunks.length],
   );
 
-  const currentChunk: RsvpWord[] | undefined = chunks[index];
-  const progress = chunks.length === 0 ? 0 : index / chunks.length;
+  const wordsRead = chunks.slice(0, index).reduce((n, c) => n + c.length, 0);
 
   return {
-    chunks,
-    currentChunk,
+    currentChunk: chunks[index],
     index,
+    total: chunks.length,
+    totalWords: words.length,
+    wordsRead,
+    elapsedMs,
     playing,
-    progress,
-    play,
-    pause,
+    done,
+    toggle,
     reset,
-    seek,
-    done: index >= chunks.length && chunks.length > 0,
+    step,
   };
 }
