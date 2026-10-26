@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, BookOpenText, Settings } from "lucide-react";
+import { BookOpen, BookOpenText, Info, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
@@ -16,6 +16,11 @@ export function Header() {
         <Button variant="text" size="icon" asChild>
           <Link href="/" aria-label="lecture">
             <BookOpenText />
+          </Link>
+        </Button>
+        <Button variant="text" size="icon" asChild>
+          <Link href="/about" aria-label="à propos">
+            <Info />
           </Link>
         </Button>
         <Button variant="text" size="icon" asChild>

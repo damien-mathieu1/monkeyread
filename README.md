@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# monkeyread
 
-## Getting Started
+A free speed-reading app with the look and feel of [monkeytype](https://monkeytype.com).
 
-First, run the development server:
+Words appear one at a time in the same spot, with one letter highlighted where your eye should land (RSVP reading). Paste any text, pick a speed, and read.
+
+## Features
+
+- RSVP reader with a highlighted pivot letter aligned on a fixed guide
+- Speed presets or any custom speed, 1 to 3 words at a time, longer pauses on punctuation
+- Focus mode: everything but the word fades out while reading
+- Keyboard shortcuts: `space` play/pause, `tab` restart, `←` `→` previous/next word (`shift` for 10)
+- Settings page: sounds, 10 fonts, text size, progress style, guides, themes, and more
+- 5 themes (serika dark, serika, paper, nord, dracula)
+- Everything stays in your browser: no account, no server, settings saved in local storage
+
+## Getting started
+
+Requires Node.js and pnpm.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command       | What it does                     |
+| ------------- | -------------------------------- |
+| `pnpm dev`    | Start the dev server             |
+| `pnpm build`  | Production build                 |
+| `pnpm lint`   | Lint with oxlint + @shadcn/lint  |
+| `pnpm format` | Format with oxfmt                |
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+Next.js, Tailwind CSS v4, shadcn/ui (Radix), oxlint with [@shadcn/lint](https://github.com/shadcn-ui/lint), oxfmt.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Component styles live in `src/components/ui` and the theme tokens in `src/app/globals.css`. The `shadcn/no-arbitrary-values` rule keeps app code on those tokens.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Credits
 
-## Deploy on Vercel
+The whole UX comes from [monkeytype](https://monkeytype.com) by Miodec and its community: layout, config bar, focus mode, modals, animations, settings page and themes. The serika dark, serika, nord and dracula palettes use the colors of the monkeytype themes of the same name.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+monkeyread is an independent project with no official link to monkeytype. No monkeytype code or sound files are reused: the UI is written from scratch and sounds are synthesized in the browser. If you like monkeyread, go type on monkeytype and support it on [GitHub](https://github.com/monkeytypegame/monkeytype).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+[MIT](LICENSE)
