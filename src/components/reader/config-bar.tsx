@@ -11,14 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Settings } from "@/hooks/use-settings";
+import type { Settings, UpdateSetting } from "@/hooks/use-settings";
 
 const WPM_PRESETS = [200, 250, 300, 400, 500];
 const CHUNK_SIZES = [1, 2, 3];
 
 type Props = {
   settings: Settings;
-  update: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+  update: UpdateSetting;
   onCustomText: () => void;
 };
 
@@ -124,7 +124,7 @@ export function ConfigBar({ settings, update, onCustomText }: Props) {
               value={customWpm}
               onChange={(e) => setCustomWpm(e.target.value)}
             />
-            <DialogFooter className="mt-4">
+            <DialogFooter className="mt-4 grid">
               <Button type="submit">ok</Button>
             </DialogFooter>
           </form>

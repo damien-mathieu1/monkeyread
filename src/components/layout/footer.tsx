@@ -10,32 +10,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { THEMES, type ThemeId } from "@/lib/themes";
+import type { Settings, UpdateSetting } from "@/hooks/use-settings";
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return <kbd className="rounded bg-muted px-1.5 py-0.5 text-foreground">{children}</kbd>;
 }
 
 type Props = {
-  theme: ThemeId;
-  onThemeChange: (theme: ThemeId) => void;
+  settings: Settings;
+  update: UpdateSetting;
+  keyTips?: boolean;
 };
 
-export function Footer({ theme, onThemeChange }: Props) {
-  const current = THEMES.find((t) => t.id === theme);
+export function Footer({ settings, update, keyTips }: Props) {
+  const current = THEMES.find((t) => t.id === settings.theme);
 
   return (
     <footer className="flex flex-col gap-8 text-xs text-muted-foreground">
-      <div className="flex flex-col items-center gap-2">
-        <div>
-          <Kbd>tab</Kbd> - recommencer
+      {keyTips && settings.showKeyTips && (
+        <div className="flex flex-col items-center gap-2">
+          {settings.quickRestart !== "off" && (
+            <div>
+              <Kbd>{settings.quickRestart}</Kbd> - recommencer
+            </div>
+          )}
+          <div>
+            <Kbd>espace</Kbd> - lecture / pause
+          </div>
+          <div>
+            <Kbd>←</Kbd> <Kbd>→</Kbd> - mot précédent / suivant
+          </div>
         </div>
-        <div>
-          <Kbd>espace</Kbd> - lecture / pause
-        </div>
-        <div>
-          <Kbd>←</Kbd> <Kbd>→</Kbd> - mot précédent / suivant
-        </div>
-      </div>
+      )}
 
       <div className="flex justify-end">
         <DropdownMenu>
@@ -47,8 +53,8 @@ export function Footer({ theme, onThemeChange }: Props) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuRadioGroup
-              value={theme}
-              onValueChange={(value) => onThemeChange(value as ThemeId)}
+              value={settings.theme}
+              onValueChange={(value) => update("theme", value as ThemeId)}
             >
               {THEMES.map((t) => (
                 <DropdownMenuRadioItem key={t.id} value={t.id}>

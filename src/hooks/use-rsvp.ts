@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { chunkWords, msPerWord, tokenize } from "@/lib/rsvp";
 
 export type RsvpSettings = {
@@ -15,20 +15,8 @@ export function useRsvp(text: string, settings: RsvpSettings) {
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const playStartRef = useRef<number | null>(null);
 
   const done = chunks.length > 0 && index >= chunks.length;
-
-  useEffect(() => {
-    if (playing) {
-      playStartRef.current = performance.now();
-    } else if (playStartRef.current !== null) {
-      const start = playStartRef.current;
-      playStartRef.current = null;
-      setElapsedMs((ms) => ms + performance.now() - start);
-    }
-  }, [playing]);
 
   useEffect(() => {
     if (!playing) return;
@@ -48,35 +36,28 @@ export function useRsvp(text: string, settings: RsvpSettings) {
   const reset = useCallback(() => {
     setPlaying(false);
     setIndex(0);
-    setElapsedMs(0);
-    playStartRef.current = null;
   }, []);
 
   useEffect(reset, [chunks, reset]);
 
   const toggle = useCallback(() => {
     if (done) {
-      reset();
+      setIndex(0);
       setPlaying(true);
       return;
     }
     setPlaying((p) => !p);
-  }, [done, reset]);
+  }, [done]);
 
   const step = useCallback(
     (delta: number) => setIndex((i) => Math.max(0, Math.min(i + delta, chunks.length - 1))),
     [chunks.length],
   );
 
-  const wordsRead = chunks.slice(0, index).reduce((n, c) => n + c.length, 0);
-
   return {
     currentChunk: chunks[index],
     index,
     total: chunks.length,
-    totalWords: words.length,
-    wordsRead,
-    elapsedMs,
     playing,
     done,
     toggle,

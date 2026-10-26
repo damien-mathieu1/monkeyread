@@ -1,31 +1,27 @@
 import type { Metadata } from "next";
-import { Roboto_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
-
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "monkeyread",
   description: "RSVP speed reading, monkeytype-style.",
 };
 
-// Applies the saved theme before first paint to avoid a theme flash.
-const themeScript = `try{var t=JSON.parse(localStorage.getItem("monkeyread-settings")).theme;if(t)document.documentElement.dataset.theme=t}catch(e){}`;
+// Applies saved theme and font before first paint to avoid a flash.
+const bootScript = `try{var s=JSON.parse(localStorage.getItem("monkeyread-settings"));var d=document.documentElement.dataset;if(s.theme)d.theme=s.theme;if(s.fontFamily)d.font=s.fontFamily}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
       data-theme="serika_dark"
-      className={`${robotoMono.variable} h-full antialiased`}
+      data-font="roboto-mono"
+      className={`${fontVariables} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="flex min-h-full flex-col">
         <TooltipProvider>{children}</TooltipProvider>

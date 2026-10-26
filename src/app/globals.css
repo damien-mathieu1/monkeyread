@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-roboto-mono);
-  --font-mono: var(--font-roboto-mono);
-  --font-heading: var(--font-roboto-mono);
+  --font-sans: var(--app-font);
+  --font-mono: var(--app-font);
+  --font-heading: var(--app-font);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -82,7 +82,41 @@
   --mt-error: #ff5555;
 }
 
-:root {
+:root,
+[data-font="roboto-mono"] {
+  --app-font: var(--font-roboto-mono);
+}
+[data-font="fira-code"] {
+  --app-font: var(--font-fira-code);
+}
+[data-font="jetbrains-mono"] {
+  --app-font: var(--font-jetbrains-mono);
+}
+[data-font="source-code-pro"] {
+  --app-font: var(--font-source-code-pro);
+}
+[data-font="courier-prime"] {
+  --app-font: var(--font-courier-prime);
+}
+[data-font="lexend-deca"] {
+  --app-font: var(--font-lexend-deca);
+}
+[data-font="inter"] {
+  --app-font: var(--font-inter);
+}
+[data-font="atkinson"] {
+  --app-font: var(--font-atkinson);
+}
+[data-font="literata"] {
+  --app-font: var(--font-literata);
+}
+[data-font="merriweather"] {
+  --app-font: var(--font-merriweather);
+}
+
+/* Re-declared on every [data-theme] element so a theme preview can scope its own colors. */
+:root,
+[data-theme] {
   --radius: 0.5rem;
   --background: var(--mt-bg);
   --foreground: var(--mt-text);
