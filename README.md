@@ -2,7 +2,7 @@
 
 A free speed-reading app with the look and feel of [monkeytype](https://monkeytype.com).
 
-Words appear one at a time in the same spot, with one letter highlighted where your eye should land (RSVP reading). Paste any text, pick a speed, and read.
+Words appear one at a time in the same spot, with one letter highlighted where your eye should land (RSVP reading). Paste any text or import a book, pick a speed, and read.
 
 ## Features
 
@@ -10,9 +10,10 @@ Words appear one at a time in the same spot, with one letter highlighted where y
 - Speed presets or any custom speed, 1 to 3 words at a time, longer pauses on punctuation
 - Focus mode: everything but the word fades out while reading
 - Keyboard shortcuts: `space` play/pause, `tab` restart, `←` `→` previous/next word (`shift` for 10)
+- Library: import PDF, EPUB or TXT books, extracted in the browser (pdf.js, JSZip) and kept in IndexedDB with your reading position; links to free public-domain sources
 - Settings page: sounds, 10 fonts, text size, progress style, guides, themes, and more
 - 5 themes (serika dark, serika, paper, nord, dracula)
-- Everything stays in your browser: no account, no server, settings saved in local storage
+- Texts and books stay in your browser; an optional account only syncs reading stats and settings
 
 ## Getting started
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { chunkWords, msPerWord, tokenize } from "@/lib/rsvp";
 
 export type RsvpSettings = {
@@ -9,12 +9,16 @@ export type RsvpSettings = {
   punctuationPause: boolean;
 };
 
-export function useRsvp(text: string, settings: RsvpSettings) {
+/** `startWord` is where a new text begins, e.g. a saved book position. */
+export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
   const words = useMemo(() => tokenize(text), [text]);
-  const chunks = useMemo(() => chunkWords(words, settings.chunkSize), [words, settings.chunkSize]);
+  const size = settings.chunkSize;
+  const chunks = useMemo(() => chunkWords(words, size), [words, size]);
 
-  const [index, setIndex] = useState(0);
+  // Position is kept in words, so changing the chunk size doesn't lose the place.
+  const [word, setWord] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const index = Math.floor(word / size);
 
   const done = chunks.length > 0 && index >= chunks.length;
 
@@ -29,20 +33,25 @@ export function useRsvp(text: string, settings: RsvpSettings) {
       (sum, w) => sum + base * (settings.punctuationPause ? w.pauseMultiplier : 1),
       0,
     );
-    const id = setTimeout(() => setIndex((i) => i + 1), duration);
+    const id = setTimeout(() => setWord((index + 1) * size), duration);
     return () => clearTimeout(id);
-  }, [playing, index, chunks, settings.wpm, settings.punctuationPause]);
+  }, [playing, index, chunks, size, settings.wpm, settings.punctuationPause]);
 
   const reset = useCallback(() => {
     setPlaying(false);
-    setIndex(0);
+    setWord(0);
   }, []);
 
-  useEffect(reset, [chunks, reset]);
+  const startRef = useRef(startWord);
+  startRef.current = startWord;
+  useEffect(() => {
+    setPlaying(false);
+    setWord(startRef.current < words.length ? startRef.current : 0);
+  }, [words]);
 
   const toggle = useCallback(() => {
     if (done) {
-      setIndex(0);
+      setWord(0);
       setPlaying(true);
       return;
     }
@@ -50,13 +59,15 @@ export function useRsvp(text: string, settings: RsvpSettings) {
   }, [done]);
 
   const step = useCallback(
-    (delta: number) => setIndex((i) => Math.max(0, Math.min(i + delta, chunks.length - 1))),
-    [chunks.length],
+    (delta: number) =>
+      setWord((w) => Math.max(0, Math.min(Math.floor(w / size) + delta, chunks.length - 1)) * size),
+    [chunks.length, size],
   );
 
   return {
     currentChunk: chunks[index],
     index,
+    word: Math.min(word, words.length),
     total: chunks.length,
     totalWords: words.length,
     playing,

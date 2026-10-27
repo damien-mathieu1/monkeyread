@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogIn, UserPlus } from "lucide-react";
 import type { Provider } from "@supabase/supabase-js";
+import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -203,6 +204,7 @@ export default function LoginPage() {
           </p>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

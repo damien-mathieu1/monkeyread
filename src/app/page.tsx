@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRsvp } from "@/hooks/use-rsvp";
 import { useSettings } from "@/hooks/use-settings";
 import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SAMPLE_TEXT } from "@/lib/rsvp";
+import { getBook, savePosition, type Book } from "@/lib/library";
 import { playSound } from "@/lib/sound";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -17,12 +18,33 @@ import { WordDisplay } from "@/components/reader/word-display";
 export default function Home() {
   const { settings, update } = useSettings();
   const [text, setText] = useState(SAMPLE_TEXT);
+  const [book, setBook] = useState<Book | null>(null);
   const [textDialogOpen, setTextDialogOpen] = useState(false);
   const [mouseMoved, setMouseMoved] = useState(false);
   const [runId, setRunId] = useState(0);
   const { user } = useAuth();
-  const rsvp = useRsvp(text, settings);
+  const rsvp = useRsvp(text, settings, book?.position);
   const { toggle, reset, step, playing, index } = rsvp;
+  const touched = useRef(false);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("book");
+    if (!id) return;
+    void getBook(id).then((found) => {
+      if (!found) return;
+      touched.current = false;
+      setBook(found.book);
+      setText(found.text);
+    });
+  }, []);
+
+  // Saves the book position on pause and every 25 chunks; skipped until reading starts so
+  // loading a book can't overwrite its saved position.
+  useEffect(() => {
+    if (playing) touched.current = true;
+    if (!book || !touched.current || (playing && index % 25 !== 0)) return;
+    void savePosition(book.id, rsvp.word);
+  }, [book, playing, index, rsvp.word]);
 
   useSessionRecorder({
     user,
@@ -112,6 +134,9 @@ export default function Home() {
           key={runId}
           className="flex w-full max-w-4xl animate-in flex-col gap-4 duration-125 fade-in"
         >
+          {book && (
+            <span className={cn("truncate text-muted-foreground", focusFade)}>{book.title}</span>
+          )}
           <span
             className={cn(
               "h-8 text-primary",
@@ -140,7 +165,11 @@ export default function Home() {
         open={textDialogOpen}
         onOpenChange={setTextDialogOpen}
         initialText={text}
-        onSave={setText}
+        onSave={(value) => {
+          setBook(null);
+          setText(value);
+          window.history.replaceState(null, "", "/");
+        }}
       />
     </div>
   );
