@@ -19,15 +19,33 @@ import {
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ON_OFF, OptionButtons, Section, Setting } from "@/components/settings/setting";
-import { FONT_SIZES } from "@/components/reader/word-display";
+import { FONT_SIZES, WordDisplay } from "@/components/reader/word-display";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettings, type Settings } from "@/hooks/use-settings";
 import { FONTS } from "@/lib/font-list";
+import { tokenize } from "@/lib/rsvp";
 import { SOUNDS, playSound } from "@/lib/sound";
 import { THEMES } from "@/lib/themes";
 import { cn } from "@/lib/utils";
+
+const PREVIEW_CHUNK = tokenize("lecture");
+
+/** Live sample of the reader with the current font, size, theme and display options. */
+function ReaderPreview({ settings }: { settings: Settings }) {
+  return (
+    <div className="rounded-lg bg-background px-8">
+      <WordDisplay
+        chunk={PREVIEW_CHUNK}
+        ended={false}
+        highlight={settings.highlightLetter}
+        guides={settings.showGuides}
+        fontSize={settings.fontSize}
+      />
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const { settings, update, resetAll } = useSettings();
@@ -168,6 +186,7 @@ export default function SettingsPage() {
         </Section>
 
         <Section title="apparence">
+          <ReaderPreview settings={settings} />
           <Setting
             icon={ALargeSmall}
             title="taille du texte"
@@ -201,6 +220,7 @@ export default function SettingsPage() {
         </Section>
 
         <Section title="thème">
+          <ReaderPreview settings={settings} />
           <Setting icon={Palette} title="thème" description="Couleurs de l'interface.">
             <span className="text-muted-foreground">
               {THEMES.find((t) => t.id === settings.theme)?.name}

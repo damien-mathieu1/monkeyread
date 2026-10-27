@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { Card } from "@/components/account/profile-cards";
 import type { ActivityDay } from "@/hooks/use-profile-data";
-import { formatDuration, formatNumber } from "@/lib/format";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatDate, formatDuration, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const LEVELS = [
@@ -79,20 +80,25 @@ export function ActivityGrid({ activity }: { activity: ActivityDay[] }) {
         <div className="flex w-max gap-1">
           {weeks.map((week, w) => (
             <div key={w} className="flex flex-col gap-1">
-              {week.map(({ day, data, future }) => (
-                <span
-                  key={day}
-                  title={
-                    data
-                      ? `${day} : ${formatNumber(data.words_read)} mots, ${formatDuration(data.time_ms)}`
-                      : day
-                  }
-                  className={cn(
-                    "size-3 rounded-sm",
-                    future ? "invisible" : LEVELS[level(data?.words_read)],
-                  )}
-                />
-              ))}
+              {week.map(({ day, data, future }) =>
+                future ? (
+                  <span key={day} className="invisible size-3" />
+                ) : (
+                  <Tooltip key={day}>
+                    <TooltipTrigger asChild>
+                      <span className={cn("size-3 rounded-sm", LEVELS[level(data?.words_read)])} />
+                    </TooltipTrigger>
+                    <TooltipContent className="grid text-center">
+                      <span>{formatDate(`${day}T12:00:00Z`)}</span>
+                      <span>
+                        {data
+                          ? `${formatNumber(data.words_read)} mots · ${formatDuration(data.time_ms)}`
+                          : "aucune lecture"}
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
+                ),
+              )}
             </div>
           ))}
         </div>

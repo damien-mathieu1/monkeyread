@@ -15,36 +15,77 @@ import { ConfigBar } from "@/components/reader/config-bar";
 import { CustomTextDialog } from "@/components/reader/custom-text-dialog";
 import { WordDisplay } from "@/components/reader/word-display";
 
+// What the reader last showed, so leaving the page and coming back resumes it.
+const LAST_KEY = "monkeyread-last";
+type Last = { bookId: string } | { text: string; position: number };
+
+function saveLast(last: Last) {
+  try {
+    localStorage.setItem(LAST_KEY, JSON.stringify(last));
+  } catch {}
+}
+
+function loadLast(): Partial<{ bookId: string; text: string; position: number }> {
+  try {
+    return JSON.parse(localStorage.getItem(LAST_KEY) ?? "{}");
+  } catch {
+    return {};
+  }
+}
+
 export default function Home() {
   const { settings, update } = useSettings();
   const [text, setText] = useState(SAMPLE_TEXT);
   const [book, setBook] = useState<Book | null>(null);
+  const [startWord, setStartWord] = useState(0);
   const [textDialogOpen, setTextDialogOpen] = useState(false);
   const [mouseMoved, setMouseMoved] = useState(false);
   const [runId, setRunId] = useState(0);
   const { user } = useAuth();
-  const rsvp = useRsvp(text, settings, book?.position);
+  const rsvp = useRsvp(text, settings, startWord);
   const { toggle, reset, step, playing, index } = rsvp;
   const touched = useRef(false);
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("book");
-    if (!id) return;
+    const last = loadLast();
+    const id = new URLSearchParams(window.location.search).get("book") ?? last.bookId;
+    if (!id) {
+      if (last.text) {
+        setStartWord(last.position ?? 0);
+        setText(last.text);
+      }
+      return;
+    }
     void getBook(id).then((found) => {
       if (!found) return;
       touched.current = false;
+      saveLast({ bookId: id });
+      setStartWord(found.book.position);
       setBook(found.book);
       setText(found.text);
     });
   }, []);
 
-  // Saves the book position on pause and every 25 chunks; skipped until reading starts so
-  // loading a book can't overwrite its saved position.
+  // Saves the position on pause, every 25 chunks and when leaving the page; skipped until
+  // reading starts so loading a text can't overwrite its saved position.
+  const save = useRef(() => {});
+  save.current = () => {
+    if (!touched.current) return;
+    if (book) void savePosition(book.id, rsvp.word);
+    else saveLast({ text, position: rsvp.word });
+  };
   useEffect(() => {
     if (playing) touched.current = true;
-    if (!book || !touched.current || (playing && index % 25 !== 0)) return;
-    void savePosition(book.id, rsvp.word);
-  }, [book, playing, index, rsvp.word]);
+    if (!playing || index % 25 === 0) save.current();
+  }, [book, text, playing, index, rsvp.word]);
+  useEffect(() => {
+    const onHide = () => save.current();
+    window.addEventListener("pagehide", onHide);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      onHide();
+    };
+  }, []);
 
   useSessionRecorder({
     user,
@@ -166,7 +207,10 @@ export default function Home() {
         onOpenChange={setTextDialogOpen}
         initialText={text}
         onSave={(value) => {
+          touched.current = false;
+          saveLast({ text: value, position: 0 });
           setBook(null);
+          setStartWord(0);
           setText(value);
           window.history.replaceState(null, "", "/");
         }}
