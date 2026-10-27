@@ -8,12 +8,15 @@ import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SAMPLE_TEXT } from "@/lib/rsvp";
 import { getBook, savePosition, type Book } from "@/lib/library";
+import { formatRemaining } from "@/lib/format";
 import { playSound } from "@/lib/sound";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ConfigBar } from "@/components/reader/config-bar";
 import { CustomTextDialog } from "@/components/reader/custom-text-dialog";
 import { WordDisplay } from "@/components/reader/word-display";
+
+const WPM_STEP = 25;
 
 export default function Home() {
   const { settings, update } = useSettings();
@@ -79,6 +82,9 @@ export default function Home() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (
         textDialogOpen ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement
       )
@@ -97,11 +103,31 @@ export default function Home() {
         step(e.shiftKey ? -10 : -1);
       } else if (e.key === "ArrowRight") {
         step(e.shiftKey ? 10 : 1);
+      } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const delta = e.key === "ArrowUp" ? WPM_STEP : -WPM_STEP;
+        update("wpm", Math.max(50, Math.min(settings.wpm + delta, 2000)));
+      } else if (["1", "2", "3"].includes(e.key)) {
+        update("chunkSize", Number(e.key));
+      } else if (e.key === "p") {
+        update("punctuationPause", !settings.punctuationPause);
+      } else if (e.key === "t") {
+        e.preventDefault();
+        setTextDialogOpen(true);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [textDialogOpen, toggle, reset, step, settings.quickRestart]);
+  }, [
+    textDialogOpen,
+    toggle,
+    reset,
+    step,
+    update,
+    settings.quickRestart,
+    settings.wpm,
+    settings.punctuationPause,
+  ]);
 
   const focusFade = cn(
     "transition-opacity duration-125",
@@ -146,6 +172,12 @@ export default function Home() {
             )}
           >
             {rsvp.index}/{rsvp.total}
+            {!rsvp.done && (
+              <span className="text-muted-foreground">
+                {" "}
+                · encore {formatRemaining(rsvp.remainingMs)}
+              </span>
+            )}
           </span>
           <WordDisplay
             chunk={rsvp.currentChunk}

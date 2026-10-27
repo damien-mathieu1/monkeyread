@@ -42,6 +42,10 @@ function KeyTips({ settings }: { settings: Settings }) {
       <div>
         <Kbd>←</Kbd> <Kbd>→</Kbd> - mot précédent / suivant
       </div>
+      <div>
+        <Kbd>↑</Kbd> <Kbd>↓</Kbd> - vitesse ±25 · <Kbd>1</Kbd> <Kbd>2</Kbd> <Kbd>3</Kbd> - mots
+        groupés · <Kbd>p</Kbd> - pause ponctuation · <Kbd>t</Kbd> - texte
+      </div>
     </div>
   );
 }
