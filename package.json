@@ -16,6 +16,7 @@
     "db:types": "supabase gen types typescript --local > src/lib/database.types.ts && oxfmt src/lib/database.types.ts"
   },
   "dependencies": {
+    "@number-flow/react": "0.6.2",
     "@supabase/supabase-js": "^2.118.0",
     "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",

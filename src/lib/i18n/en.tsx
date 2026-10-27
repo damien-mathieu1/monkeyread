@@ -25,7 +25,7 @@ export const en: Dict = {
   reader: {
     sample:
       "Reading fast is not a matter of talent, but of habit. When words arrive one at a time, in the same spot, your eyes no longer need to jump from one line to the next. They stay still, and your brain does the rest. The colored letter marks where your gaze naturally lands. Start slowly, around two hundred and fifty words per minute, then raise the speed little by little. You will be surprised how pleasant it becomes. When you are ready, paste your own text and start reading.",
-    remaining: (time: string) => `${time} left`,
+    remaining: (time: Node) => <>{time} left</>,
     end: "the end.",
     punctuationPause: "punctuation pause",
     words: "words",
