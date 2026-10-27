@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { ThemeId } from "@/lib/themes";
 import type { FontId } from "@/lib/font-list";
 import type { SoundId } from "@/lib/sound";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/components/auth/auth-provider";
 
 export type Settings = {
   wpm: number;
@@ -46,14 +48,27 @@ function applyToDocument(s: Pick<Settings, "theme" | "fontFamily">) {
   document.documentElement.dataset.font = s.fontFamily;
 }
 
+let remoteTimer: ReturnType<typeof setTimeout> | undefined;
+let signedIn = false;
+
 function persist(s: Settings) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
   } catch {}
+  if (!signedIn) return;
+  clearTimeout(remoteTimer);
+  remoteTimer = setTimeout(() => {
+    void supabase
+      .from("user_settings")
+      .upsert({ settings: s, updated_at: new Date().toISOString() })
+      .then(({ error }) => error && console.warn("settings not synced:", error.message));
+  }, 500);
 }
 
 export function useSettings() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   useEffect(() => {
     try {
@@ -61,6 +76,30 @@ export function useSettings() {
       if (saved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
     } catch {}
   }, []);
+
+  // Account settings win on sign-in; a new account adopts the local ones.
+  useEffect(() => {
+    signedIn = !!userId;
+    if (!userId) return;
+    let cancelled = false;
+    void supabase
+      .from("user_settings")
+      .select("settings")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (!data) return setSettings((local) => (persist(local), local));
+        const remote = { ...DEFAULT_SETTINGS, ...(data.settings as Partial<Settings>) };
+        applyToDocument(remote);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(remote));
+        } catch {}
+        setSettings(remote);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const update: UpdateSetting = useCallback((key, value) => {
     setSettings((prev) => {

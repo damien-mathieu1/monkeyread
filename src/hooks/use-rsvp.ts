@@ -58,6 +58,7 @@ export function useRsvp(text: string, settings: RsvpSettings) {
     currentChunk: chunks[index],
     index,
     total: chunks.length,
+    totalWords: words.length,
     playing,
     done,
     toggle,
