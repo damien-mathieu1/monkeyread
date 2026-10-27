@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Settings, UpdateSetting } from "@/hooks/use-settings";
 
 const WPM_PRESETS = [200, 250, 300, 400, 500];
@@ -24,6 +25,22 @@ type Props = {
 
 function Spacer() {
   return <div className="my-2 w-1 rounded-full bg-background" />;
+}
+
+/** Shows the keyboard shortcut of a config group on hover. */
+function Hint({ keys, children }: { keys: string[]; children: React.ReactNode }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent className="flex gap-1">
+        {keys.map((k) => (
+          <kbd key={k} className="rounded bg-muted px-1.5 text-foreground">
+            {k}
+          </kbd>
+        ))}
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 function Option({
@@ -55,55 +72,63 @@ export function ConfigBar({ settings, update, onCustomText }: Props) {
 
   return (
     <div className="flex w-max gap-2 rounded-lg bg-muted px-2 text-xs">
-      <Option
-        active={settings.punctuationPause}
-        onClick={() => update("punctuationPause", !settings.punctuationPause)}
-      >
-        <Pause />
-        pause ponctuation
-      </Option>
-
-      <Spacer />
-
-      <div className="flex">
-        {WPM_PRESETS.map((wpm) => (
-          <Option key={wpm} active={settings.wpm === wpm} onClick={() => update("wpm", wpm)}>
-            {wpm}
-          </Option>
-        ))}
+      <Hint keys={["p"]}>
         <Option
-          active={!isPreset}
-          onClick={() => {
-            setCustomWpm(String(settings.wpm));
-            setCustomWpmOpen(true);
-          }}
+          active={settings.punctuationPause}
+          onClick={() => update("punctuationPause", !settings.punctuationPause)}
         >
-          <Wrench />
-          {!isPreset && settings.wpm}
+          <Pause />
+          pause ponctuation
         </Option>
-      </div>
+      </Hint>
 
       <Spacer />
 
-      <div className="flex items-center">
-        <span className="px-2 text-muted-foreground">mots</span>
-        {CHUNK_SIZES.map((size) => (
+      <Hint keys={["↑", "↓"]}>
+        <div className="flex">
+          {WPM_PRESETS.map((wpm) => (
+            <Option key={wpm} active={settings.wpm === wpm} onClick={() => update("wpm", wpm)}>
+              {wpm}
+            </Option>
+          ))}
           <Option
-            key={size}
-            active={settings.chunkSize === size}
-            onClick={() => update("chunkSize", size)}
+            active={!isPreset}
+            onClick={() => {
+              setCustomWpm(String(settings.wpm));
+              setCustomWpmOpen(true);
+            }}
           >
-            {size}
+            <Wrench />
+            {!isPreset && settings.wpm}
           </Option>
-        ))}
-      </div>
+        </div>
+      </Hint>
 
       <Spacer />
 
-      <Option onClick={onCustomText}>
-        <FileText />
-        texte
-      </Option>
+      <Hint keys={["1", "2", "3"]}>
+        <div className="flex items-center">
+          <span className="px-2 text-muted-foreground">mots</span>
+          {CHUNK_SIZES.map((size) => (
+            <Option
+              key={size}
+              active={settings.chunkSize === size}
+              onClick={() => update("chunkSize", size)}
+            >
+              {size}
+            </Option>
+          ))}
+        </div>
+      </Hint>
+
+      <Spacer />
+
+      <Hint keys={["t"]}>
+        <Option onClick={onCustomText}>
+          <FileText />
+          texte
+        </Option>
+      </Hint>
 
       <Dialog open={customWpmOpen} onOpenChange={setCustomWpmOpen}>
         <DialogContent>
