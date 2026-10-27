@@ -62,7 +62,7 @@ function AccountButton() {
           {profile.name}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-max">
         <DropdownMenuItem asChild>
           <Link href="/account">
             <ChartLine />
