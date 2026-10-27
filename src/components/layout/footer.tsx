@@ -128,7 +128,11 @@ function ContactDialog({ open, onOpenChange }: DialogProps) {
             label={t.footer.idea}
             href={`${REPO_URL}/issues/new?template=feature_request.yml`}
           />
-          <BigLink icon={Bug} label={t.footer.bug} href={`${REPO_URL}/issues/new?template=bug_report.yml`} />
+          <BigLink
+            icon={Bug}
+            label={t.footer.bug}
+            href={`${REPO_URL}/issues/new?template=bug_report.yml`}
+          />
         </div>
       </DialogContent>
     </Dialog>
