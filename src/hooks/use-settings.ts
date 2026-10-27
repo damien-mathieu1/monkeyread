@@ -15,6 +15,7 @@ export type Settings = {
   highlightLetter: boolean;
   showGuides: boolean;
   progressStyle: "off" | "text" | "mini" | "bar";
+  animateNumbers: boolean;
   sound: SoundId;
   soundVolume: number;
   fontFamily: FontId;
@@ -33,6 +34,7 @@ export const DEFAULT_SETTINGS: Settings = {
   highlightLetter: true,
   showGuides: true,
   progressStyle: "text",
+  animateNumbers: true,
   sound: "off",
   soundVolume: 0.5,
   fontFamily: "roboto-mono",

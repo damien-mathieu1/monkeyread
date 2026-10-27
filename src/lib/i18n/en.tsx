@@ -94,6 +94,10 @@ export const en: Dict = {
       title: "guides",
       description: "Shows the lines and ticks that mark the fixation point.",
     },
+    animateNumbers: {
+      title: "animated numbers",
+      description: "Rolls the digits of the counter and the time left when they change.",
+    },
     progress: {
       title: "progress",
       description: "How to show reading progress.",

@@ -95,6 +95,10 @@ export const fr = {
       title: "repères",
       description: "Affiche les lignes et les traits qui marquent le point de fixation.",
     },
+    animateNumbers: {
+      title: "chiffres animés",
+      description: "Fait rouler les chiffres du compteur et du temps restant quand ils changent.",
+    },
     progress: {
       title: "progression",
       description: "Comment afficher l'avancement de la lecture.",

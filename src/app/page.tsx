@@ -216,11 +216,14 @@ export default function Home() {
               (settings.progressStyle === "off" || settings.progressStyle === "bar") && "invisible",
             )}
           >
-            <NumberFlow value={rsvp.index} />/{rsvp.total}
+            <NumberFlow value={rsvp.index} animated={settings.animateNumbers} />/{rsvp.total}
             {!rsvp.done && (
               <span className="text-muted-foreground">
                 {" "}
-                · {t.reader.remaining(<RemainingTime ms={rsvp.remainingMs} />)}
+                ·{" "}
+                {t.reader.remaining(
+                  <RemainingTime ms={rsvp.remainingMs} animated={settings.animateNumbers} />,
+                )}
               </span>
             )}
           </span>
