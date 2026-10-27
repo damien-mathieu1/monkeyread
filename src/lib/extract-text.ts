@@ -1,5 +1,18 @@
 export type ExtractedBook = { title: string; author: string; text: string };
 
+export type ExtractErrorCode = "noText" | "invalidEpub" | "unreadable";
+
+class ExtractError extends Error {
+  constructor(readonly code: ExtractErrorCode) {
+    super(code);
+  }
+}
+
+/** Maps any import failure to a code the UI can translate. */
+export function extractErrorCode(e: unknown): ExtractErrorCode {
+  return e instanceof ExtractError ? e.code : "unreadable";
+}
+
 export const ACCEPTED_FILES = ".pdf,.epub,.txt,application/pdf,application/epub+zip,text/plain";
 
 function baseName(file: File) {
@@ -83,7 +96,7 @@ async function extractEpub(file: File): Promise<ExtractedBook> {
   const container = parseXml((await read("META-INF/container.xml")) ?? "", "application/xml");
   const opfPath = container?.querySelector("rootfile")?.getAttribute("full-path");
   const opf = opfPath && parseXml((await read(opfPath)) ?? "", "application/xml");
-  if (!opfPath || !opf) throw new Error("epub invalide");
+  if (!opfPath || !opf) throw new ExtractError("invalidEpub");
 
   const dir = opfPath.includes("/") ? opfPath.slice(0, opfPath.lastIndexOf("/") + 1) : "";
   const hrefs = new Map(
@@ -125,7 +138,7 @@ export async function extractBook(file: File): Promise<ExtractedBook> {
       ? await extractEpub(file)
       : { title: baseName(file), author: "", text: cleanText(await file.text()) };
   if (!book.text) {
-    throw new Error("aucun texte trouvé (un PDF scanné ne contient que des images)");
+    throw new ExtractError("noText");
   }
   return book;
 }

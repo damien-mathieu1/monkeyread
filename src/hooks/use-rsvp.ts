@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { chunkWords, msPerWord, tokenize } from "@/lib/rsvp";
 
 export type RsvpSettings = {
@@ -9,11 +9,15 @@ export type RsvpSettings = {
   punctuationPause: boolean;
 };
 
-/** `startWord` is where a new text begins, e.g. a saved book position. */
+/** `startWord` is where a new text begins, e.g. a saved position; changing it jumps there. */
 export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
   const words = useMemo(() => tokenize(text), [text]);
   const size = settings.chunkSize;
   const chunks = useMemo(() => chunkWords(words, size), [words, size]);
+  const avgPause = useMemo(
+    () => words.reduce((sum, w) => sum + w.pauseMultiplier, 0) / (words.length || 1),
+    [words],
+  );
 
   // Position is kept in words, so changing the chunk size doesn't lose the place.
   const [word, setWord] = useState(0);
@@ -42,12 +46,10 @@ export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
     setWord(0);
   }, []);
 
-  const startRef = useRef(startWord);
-  startRef.current = startWord;
   useEffect(() => {
     setPlaying(false);
-    setWord(startRef.current < words.length ? startRef.current : 0);
-  }, [words]);
+    setWord(startWord < words.length ? startWord : 0);
+  }, [words, startWord]);
 
   const toggle = useCallback(() => {
     if (done) {
@@ -70,6 +72,10 @@ export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
     word: Math.min(word, words.length),
     total: chunks.length,
     totalWords: words.length,
+    remainingMs:
+      Math.max(0, words.length - word) *
+      msPerWord(settings.wpm) *
+      (settings.punctuationPause ? avgPause : 1),
     playing,
     done,
     toggle,

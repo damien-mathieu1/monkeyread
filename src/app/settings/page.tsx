@@ -5,6 +5,7 @@ import {
   Crosshair,
   Gauge,
   Keyboard,
+  Languages,
   LayoutList,
   Pause,
   TriangleAlert,
@@ -19,29 +20,59 @@ import {
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ON_OFF, OptionButtons, Section, Setting } from "@/components/settings/setting";
-import { FONT_SIZES } from "@/components/reader/word-display";
+import { FONT_SIZES, WordDisplay } from "@/components/reader/word-display";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettings, type Settings } from "@/hooks/use-settings";
 import { FONTS } from "@/lib/font-list";
+import { tokenize } from "@/lib/rsvp";
 import { SOUNDS, playSound } from "@/lib/sound";
 import { THEMES } from "@/lib/themes";
+import { LANGS, useI18n, useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+
+/** Live sample of the reader with the current font, size, theme and display options. */
+function ReaderPreview({ settings }: { settings: Settings }) {
+  const t = useT();
+  return (
+    <div className="rounded-lg bg-background px-8">
+      <WordDisplay
+        chunk={tokenize(t.settings.previewWord)}
+        ended={false}
+        highlight={settings.highlightLetter}
+        guides={settings.showGuides}
+        fontSize={settings.fontSize}
+      />
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const { settings, update, resetAll } = useSettings();
+  const { t, lang, setLang } = useI18n();
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-8 py-8">
       <Header />
 
       <main className="grid flex-1 gap-16">
-        <Section title="comportement">
+        <Section title={t.settings.sections.behavior}>
+          <Setting
+            icon={Languages}
+            title={t.settings.language.title}
+            description={t.settings.language.description}
+          >
+            <OptionButtons
+              options={LANGS.map((l) => ({ value: l.id, label: l.name }))}
+              value={lang}
+              onChange={setLang}
+            />
+          </Setting>
           <Setting
             icon={RotateCcw}
-            title="recommencer rapidement"
-            description="Recommence la lecture depuis le début avec tab ou échap."
+            title={t.settings.quickRestart.title}
+            description={t.settings.quickRestart.description}
           >
             <OptionButtons
               columns={3}
@@ -56,8 +87,8 @@ export default function SettingsPage() {
           </Setting>
           <Setting
             icon={Pause}
-            title="pause ponctuation"
-            description="Reste plus longtemps sur les fins de phrase et les virgules pour laisser le temps au sens de se poser."
+            title={t.settings.punctuationPause.title}
+            description={t.settings.punctuationPause.description}
           >
             <OptionButtons
               options={ON_OFF}
@@ -67,8 +98,12 @@ export default function SettingsPage() {
           </Setting>
         </Section>
 
-        <Section title="lecture">
-          <Setting icon={Gauge} title="vitesse" description="Nombre de mots affichés par minute.">
+        <Section title={t.settings.sections.reading}>
+          <Setting
+            icon={Gauge}
+            title={t.settings.speed.title}
+            description={t.settings.speed.description}
+          >
             <Input
               key={settings.wpm}
               type="number"
@@ -85,8 +120,8 @@ export default function SettingsPage() {
           </Setting>
           <Setting
             icon={LayoutList}
-            title="mots groupés"
-            description="Nombre de mots affichés en même temps."
+            title={t.settings.chunkSize.title}
+            description={t.settings.chunkSize.description}
           >
             <OptionButtons
               columns={3}
@@ -97,8 +132,8 @@ export default function SettingsPage() {
           </Setting>
           <Setting
             icon={Highlighter}
-            title="lettre mise en avant"
-            description="Colore la lettre sur laquelle l'œil doit se poser."
+            title={t.settings.highlight.title}
+            description={t.settings.highlight.description}
           >
             <OptionButtons
               options={ON_OFF}
@@ -108,8 +143,8 @@ export default function SettingsPage() {
           </Setting>
           <Setting
             icon={Crosshair}
-            title="repères"
-            description="Affiche les lignes et les traits qui marquent le point de fixation."
+            title={t.settings.guides.title}
+            description={t.settings.guides.description}
           >
             <OptionButtons
               options={ON_OFF}
@@ -119,15 +154,15 @@ export default function SettingsPage() {
           </Setting>
           <Setting
             icon={Timer}
-            title="progression"
-            description="Comment afficher l'avancement de la lecture."
+            title={t.settings.progress.title}
+            description={t.settings.progress.description}
           >
             <OptionButtons
               columns={4}
               options={[
                 { value: "off", label: "off" },
-                { value: "bar", label: "barre" },
-                { value: "text", label: "texte" },
+                { value: "bar", label: t.settings.progress.bar },
+                { value: "text", label: t.settings.progress.text },
                 { value: "mini", label: "mini" },
               ]}
               value={settings.progressStyle}
@@ -136,8 +171,12 @@ export default function SettingsPage() {
           </Setting>
         </Section>
 
-        <Section title="son">
-          <Setting icon={Volume2} title="volume" description="Volume du son joué à chaque mot.">
+        <Section title={t.settings.sections.sound}>
+          <Setting
+            icon={Volume2}
+            title={t.settings.volume.title}
+            description={t.settings.volume.description}
+          >
             <div className="flex items-center gap-4">
               <span className="w-8 text-muted-foreground">{settings.soundVolume.toFixed(1)}</span>
               <Slider
@@ -152,8 +191,8 @@ export default function SettingsPage() {
           </Setting>
           <Setting
             icon={VolumeX}
-            title="son à chaque mot"
-            description="Joue un petit son à chaque mot affiché, comme un métronome."
+            title={t.settings.sound.title}
+            description={t.settings.sound.description}
           >
             <OptionButtons
               columns={3}
@@ -167,11 +206,12 @@ export default function SettingsPage() {
           </Setting>
         </Section>
 
-        <Section title="apparence">
+        <Section title={t.settings.sections.appearance}>
+          <ReaderPreview settings={settings} />
           <Setting
             icon={ALargeSmall}
-            title="taille du texte"
-            description="Taille des mots pendant la lecture."
+            title={t.settings.fontSize.title}
+            description={t.settings.fontSize.description}
           >
             <OptionButtons
               columns={3}
@@ -180,7 +220,11 @@ export default function SettingsPage() {
               onChange={(v) => update("fontSize", v)}
             />
           </Setting>
-          <Setting icon={Type} title="police" description="Police utilisée dans toute l'app.">
+          <Setting
+            icon={Type}
+            title={t.settings.font.title}
+            description={t.settings.font.description}
+          >
             <span className="text-muted-foreground">
               {FONTS.find((f) => f.id === settings.fontFamily)?.name}
             </span>
@@ -200,25 +244,30 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="thème">
-          <Setting icon={Palette} title="thème" description="Couleurs de l'interface.">
+        <Section title={t.settings.sections.theme}>
+          <ReaderPreview settings={settings} />
+          <Setting
+            icon={Palette}
+            title={t.settings.theme.title}
+            description={t.settings.theme.description}
+          >
             <span className="text-muted-foreground">
-              {THEMES.find((t) => t.id === settings.theme)?.name}
+              {THEMES.find((th) => th.id === settings.theme)?.name}
             </span>
           </Setting>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-            {THEMES.map((t) => (
+            {THEMES.map((th) => (
               <button
-                key={t.id}
+                key={th.id}
                 type="button"
-                data-theme={t.id}
-                onClick={() => update("theme", t.id)}
+                data-theme={th.id}
+                onClick={() => update("theme", th.id)}
                 className={cn(
                   "flex items-center justify-between rounded-lg bg-background px-4 py-2 text-foreground transition-transform duration-125 hover:scale-105",
-                  settings.theme === t.id && "ring-2 ring-primary",
+                  settings.theme === th.id && "ring-2 ring-primary",
                 )}
               >
-                {t.name}
+                {th.name}
                 <span className="flex gap-1">
                   <span className="size-3 rounded-full bg-primary" />
                   <span className="size-3 rounded-full bg-muted-foreground" />
@@ -229,16 +278,16 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="masquer des éléments">
+        <Section title={t.settings.sections.hideElements}>
           <Setting
             icon={Keyboard}
-            title="raccourcis clavier"
-            description="Affiche les raccourcis en bas de la page de lecture."
+            title={t.settings.keyTips.title}
+            description={t.settings.keyTips.description}
           >
             <OptionButtons
               options={[
-                { value: false, label: "masquer" },
-                { value: true, label: "afficher" },
+                { value: false, label: t.settings.keyTips.hide },
+                { value: true, label: t.settings.keyTips.show },
               ]}
               value={settings.showKeyTips}
               onChange={(v) => update("showKeyTips", v)}
@@ -246,14 +295,14 @@ export default function SettingsPage() {
           </Setting>
         </Section>
 
-        <Section title="zone dangereuse">
+        <Section title={t.settings.sections.dangerZone}>
           <Setting
             icon={TriangleAlert}
-            title="réinitialiser les réglages"
-            description="Remet tous les réglages à leur valeur par défaut. Irréversible."
+            title={t.settings.reset.title}
+            description={t.settings.reset.description}
           >
             <Button variant="destructive" className="w-full" onClick={resetAll}>
-              réinitialiser
+              {t.settings.reset.button}
             </Button>
           </Setting>
         </Section>

@@ -6,8 +6,9 @@ import { useRsvp } from "@/hooks/use-rsvp";
 import { useSettings } from "@/hooks/use-settings";
 import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import { useAuth } from "@/components/auth/auth-provider";
-import { SAMPLE_TEXT } from "@/lib/rsvp";
+import { useT } from "@/lib/i18n";
 import { getBook, savePosition, type Book } from "@/lib/library";
+import { formatRemaining } from "@/lib/format";
 import { playSound } from "@/lib/sound";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -15,36 +16,82 @@ import { ConfigBar } from "@/components/reader/config-bar";
 import { CustomTextDialog } from "@/components/reader/custom-text-dialog";
 import { WordDisplay } from "@/components/reader/word-display";
 
+const WPM_STEP = 25;
+
+// What the reader last showed, so leaving the page and coming back resumes it.
+const LAST_KEY = "monkeyread-last";
+type Last = { bookId: string } | { text: string; position: number };
+
+function saveLast(last: Last) {
+  try {
+    localStorage.setItem(LAST_KEY, JSON.stringify(last));
+  } catch {}
+}
+
+function loadLast(): Partial<{ bookId: string; text: string; position: number }> {
+  try {
+    return JSON.parse(localStorage.getItem(LAST_KEY) ?? "{}");
+  } catch {
+    return {};
+  }
+}
+
 export default function Home() {
   const { settings, update } = useSettings();
-  const [text, setText] = useState(SAMPLE_TEXT);
+  const t = useT();
+  // null shows the sample text in the current language.
+  const [customText, setText] = useState<string | null>(null);
+  const text = customText ?? t.reader.sample;
   const [book, setBook] = useState<Book | null>(null);
+  const [startWord, setStartWord] = useState(0);
   const [textDialogOpen, setTextDialogOpen] = useState(false);
   const [mouseMoved, setMouseMoved] = useState(false);
   const [runId, setRunId] = useState(0);
   const { user } = useAuth();
-  const rsvp = useRsvp(text, settings, book?.position);
+  const rsvp = useRsvp(text, settings, startWord);
   const { toggle, reset, step, playing, index } = rsvp;
   const touched = useRef(false);
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("book");
-    if (!id) return;
+    const last = loadLast();
+    const id = new URLSearchParams(window.location.search).get("book") ?? last.bookId;
+    if (!id) {
+      if (last.text) {
+        setStartWord(last.position ?? 0);
+        setText(last.text);
+      }
+      return;
+    }
     void getBook(id).then((found) => {
       if (!found) return;
       touched.current = false;
+      saveLast({ bookId: id });
+      setStartWord(found.book.position);
       setBook(found.book);
       setText(found.text);
     });
   }, []);
 
-  // Saves the book position on pause and every 25 chunks; skipped until reading starts so
-  // loading a book can't overwrite its saved position.
+  // Saves the position on pause, every 25 chunks and when leaving the page; skipped until
+  // reading starts so loading a text can't overwrite its saved position.
+  const save = useRef(() => {});
+  save.current = () => {
+    if (!touched.current) return;
+    if (book) void savePosition(book.id, rsvp.word);
+    else if (customText) saveLast({ text: customText, position: rsvp.word });
+  };
   useEffect(() => {
     if (playing) touched.current = true;
-    if (!book || !touched.current || (playing && index % 25 !== 0)) return;
-    void savePosition(book.id, rsvp.word);
-  }, [book, playing, index, rsvp.word]);
+    if (!playing || index % 25 === 0) save.current();
+  }, [book, customText, playing, index, rsvp.word]);
+  useEffect(() => {
+    const onHide = () => save.current();
+    window.addEventListener("pagehide", onHide);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      onHide();
+    };
+  }, []);
 
   useSessionRecorder({
     user,
@@ -79,6 +126,9 @@ export default function Home() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (
         textDialogOpen ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement
       )
@@ -97,11 +147,31 @@ export default function Home() {
         step(e.shiftKey ? -10 : -1);
       } else if (e.key === "ArrowRight") {
         step(e.shiftKey ? 10 : 1);
+      } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const delta = e.key === "ArrowUp" ? WPM_STEP : -WPM_STEP;
+        update("wpm", Math.max(50, Math.min(settings.wpm + delta, 2000)));
+      } else if (["1", "2", "3"].includes(e.key)) {
+        update("chunkSize", Number(e.key));
+      } else if (e.key === "p") {
+        update("punctuationPause", !settings.punctuationPause);
+      } else if (e.key === "t") {
+        e.preventDefault();
+        setTextDialogOpen(true);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [textDialogOpen, toggle, reset, step, settings.quickRestart]);
+  }, [
+    textDialogOpen,
+    toggle,
+    reset,
+    step,
+    update,
+    settings.quickRestart,
+    settings.wpm,
+    settings.punctuationPause,
+  ]);
 
   const focusFade = cn(
     "transition-opacity duration-125",
@@ -146,6 +216,12 @@ export default function Home() {
             )}
           >
             {rsvp.index}/{rsvp.total}
+            {!rsvp.done && (
+              <span className="text-muted-foreground">
+                {" "}
+                · {t.reader.remaining(formatRemaining(rsvp.remainingMs))}
+              </span>
+            )}
           </span>
           <WordDisplay
             chunk={rsvp.currentChunk}
@@ -166,7 +242,10 @@ export default function Home() {
         onOpenChange={setTextDialogOpen}
         initialText={text}
         onSave={(value) => {
+          touched.current = false;
+          saveLast({ text: value, position: 0 });
           setBook(null);
+          setStartWord(0);
           setText(value);
           window.history.replaceState(null, "", "/");
         }}

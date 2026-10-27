@@ -23,24 +23,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { REPO_URL } from "@/components/layout/doc";
 import type { Settings } from "@/hooks/use-settings";
 import { THEMES } from "@/lib/themes";
+import { useT } from "@/lib/i18n";
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return <kbd className="rounded bg-muted px-1.5 py-0.5 text-foreground">{children}</kbd>;
 }
 
 function KeyTips({ settings }: { settings: Settings }) {
+  const t = useT();
   return (
     <div className="flex flex-col items-center gap-2">
       {settings.quickRestart !== "off" && (
         <div>
-          <Kbd>{settings.quickRestart}</Kbd> - recommencer
+          <Kbd>{settings.quickRestart}</Kbd> - {t.keys.restart}
         </div>
       )}
       <div>
-        <Kbd>espace</Kbd> - lecture / pause
+        <Kbd>{t.keys.space}</Kbd> - {t.keys.playPause}
       </div>
       <div>
-        <Kbd>←</Kbd> <Kbd>→</Kbd> - mot précédent / suivant
+        <Kbd>←</Kbd> <Kbd>→</Kbd> - {t.keys.prevNext}
+      </div>
+      <div>
+        <Kbd>↑</Kbd> <Kbd>↓</Kbd> - {t.keys.speed} · <Kbd>1</Kbd> <Kbd>2</Kbd> <Kbd>3</Kbd> -{" "}
+        {t.keys.chunk} · <Kbd>p</Kbd> - {t.reader.punctuationPause} · <Kbd>t</Kbd> - {t.reader.text}
       </div>
     </div>
   );
@@ -97,28 +103,32 @@ function BigLink({ icon: Icon, href, label }: { icon: LucideIcon; href: string; 
 }
 
 function ContactDialog({ open, onOpenChange }: DialogProps) {
+  const t = useT();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>contact</DialogTitle>
+          <DialogTitle>{t.footer.contact}</DialogTitle>
         </DialogHeader>
         <p>
-          Tout passe par GitHub : une question, une idée ou un bug, ouvre un ticket et je réponds
-          là-bas. Pour une faille de sécurité, lis plutôt la page{" "}
-          <Link href="/security" className="text-primary hover:underline">
-            sécurité
-          </Link>
-          .
+          {t.footer.contactBody(
+            <Link href="/security" className="text-primary hover:underline">
+              {t.footer.security}
+            </Link>,
+          )}
         </p>
         <div className="grid grid-cols-3 gap-2">
-          <BigLink icon={MessageCircleQuestion} label="question" href={`${REPO_URL}/discussions`} />
+          <BigLink
+            icon={MessageCircleQuestion}
+            label={t.footer.question}
+            href={`${REPO_URL}/discussions`}
+          />
           <BigLink
             icon={Lightbulb}
-            label="idée"
+            label={t.footer.idea}
             href={`${REPO_URL}/issues/new?template=feature_request.yml`}
           />
-          <BigLink icon={Bug} label="bug" href={`${REPO_URL}/issues/new?template=bug_report.yml`} />
+          <BigLink icon={Bug} label={t.footer.bug} href={`${REPO_URL}/issues/new?template=bug_report.yml`} />
         </div>
       </DialogContent>
     </Dialog>
@@ -126,19 +136,17 @@ function ContactDialog({ open, onOpenChange }: DialogProps) {
 }
 
 function SupportDialog({ open, onOpenChange }: DialogProps) {
+  const t = useT();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>soutenir monkeyread</DialogTitle>
+          <DialogTitle>{t.footer.supportTitle}</DialogTitle>
         </DialogHeader>
-        <p>
-          monkeyread est gratuit, sans pub et le restera. Pour aider : mets une étoile au projet,
-          parles-en autour de toi, ou soutiens monkeytype, sans qui ce site n&apos;existerait pas.
-        </p>
+        <p>{t.footer.supportBody}</p>
         <div className="grid grid-cols-3 gap-2">
-          <BigLink icon={Star} label="étoile GitHub" href={REPO_URL} />
-          <BigLink icon={Share2} label="partager" href="https://monkeyread.dmathieu.dev" />
+          <BigLink icon={Star} label={t.footer.star} href={REPO_URL} />
+          <BigLink icon={Share2} label={t.footer.share} href="https://monkeyread.dmathieu.dev" />
           <BigLink icon={Heart} label="monkeytype" href="https://monkeytype.com" />
         </div>
       </DialogContent>
@@ -158,7 +166,7 @@ function useThemeName() {
     observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
     return () => observer.disconnect();
   }, []);
-  return THEMES.find((t) => t.id === id)?.name;
+  return THEMES.find((theme) => theme.id === id)?.name;
 }
 
 const COMMIT = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
@@ -167,6 +175,7 @@ const COMMIT = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
 export function Footer({ settings }: { settings?: Settings }) {
   const [dialog, setDialog] = useState<"contact" | "support" | null>(null);
   const theme = useThemeName();
+  const t = useT();
   const close = (open: boolean) => !open && setDialog(null);
 
   return (
@@ -175,22 +184,22 @@ export function Footer({ settings }: { settings?: Settings }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <nav className="flex flex-wrap">
           <FooterLink icon={Mail} onClick={() => setDialog("contact")}>
-            contact
+            {t.footer.contact}
           </FooterLink>
           <FooterLink icon={Heart} onClick={() => setDialog("support")}>
-            soutenir
+            {t.footer.support}
           </FooterLink>
           <FooterLink icon={Code} href={REPO_URL} external>
             github
           </FooterLink>
           <FooterLink icon={FileText} href="/terms">
-            conditions
+            {t.footer.terms}
           </FooterLink>
           <FooterLink icon={Shield} href="/security">
-            sécurité
+            {t.footer.security}
           </FooterLink>
           <FooterLink icon={Lock} href="/privacy">
-            confidentialité
+            {t.footer.privacy}
           </FooterLink>
         </nav>
         <div className="flex">

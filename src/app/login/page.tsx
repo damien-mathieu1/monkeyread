@@ -10,6 +10,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { accountsEnabled, supabase } from "@/lib/supabase";
+import { useT } from "@/lib/i18n";
 
 const PROVIDERS: { id: Provider; label: string }[] = [
   { id: "google", label: "google" },
@@ -23,6 +24,7 @@ function Message({ text, error }: { text: string; error?: boolean }) {
 }
 
 function Register() {
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,9 +44,8 @@ function Register() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirm)
-      return setMessage({ text: "les mots de passe diffèrent", error: true });
-    if (nameFree === false) return setMessage({ text: "pseudo déjà pris", error: true });
+    if (password !== confirm) return setMessage({ text: t.login.passwordMismatch, error: true });
+    if (nameFree === false) return setMessage({ text: t.login.nameTaken, error: true });
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -53,18 +54,17 @@ function Register() {
     });
     setBusy(false);
     if (error) return setMessage({ text: error.message, error: true });
-    if (!data.session)
-      setMessage({ text: "vérifie tes emails pour confirmer le compte", error: false });
+    if (!data.session) setMessage({ text: t.login.checkEmail, error: false });
   };
 
   return (
     <form onSubmit={submit} className="grid gap-2">
       <h2 className="flex items-center gap-2 text-muted-foreground">
         <UserPlus className="size-4" />
-        inscription
+        {t.login.register}
       </h2>
       <Input
-        placeholder="pseudo"
+        placeholder={t.login.username}
         value={name}
         onChange={(e) => setName(e.target.value)}
         aria-invalid={nameFree === false}
@@ -72,7 +72,7 @@ function Register() {
         minLength={3}
         maxLength={20}
         pattern="[A-Za-z0-9_.\-]+"
-        title="3 à 20 caractères : lettres, chiffres, _ . -"
+        title={t.login.usernameRules}
       />
       <Input
         type="email"
@@ -83,7 +83,7 @@ function Register() {
       />
       <Input
         type="password"
-        placeholder="mot de passe"
+        placeholder={t.login.password}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
@@ -91,14 +91,14 @@ function Register() {
       />
       <Input
         type="password"
-        placeholder="confirme le mot de passe"
+        placeholder={t.login.confirmPassword}
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         required
       />
       <Button type="submit" disabled={busy}>
         <UserPlus />
-        s&apos;inscrire
+        {t.login.signUp}
       </Button>
       <Message {...message} />
     </form>
@@ -106,6 +106,7 @@ function Register() {
 }
 
 function SignIn() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState({ text: "", error: false });
@@ -120,14 +121,12 @@ function SignIn() {
   };
 
   const forgot = async () => {
-    if (!email) return setMessage({ text: "entre ton email d'abord", error: true });
+    if (!email) return setMessage({ text: t.login.emailFirst, error: true });
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${location.origin}/account/settings`,
     });
     setMessage(
-      error
-        ? { text: error.message, error: true }
-        : { text: "email de réinitialisation envoyé", error: false },
+      error ? { text: error.message, error: true } : { text: t.login.resetSent, error: false },
     );
   };
 
@@ -135,7 +134,7 @@ function SignIn() {
     <div className="grid gap-2">
       <h2 className="flex items-center gap-2 text-muted-foreground">
         <LogIn className="size-4" />
-        connexion
+        {t.login.signIn}
       </h2>
       <div className="grid grid-cols-3 gap-2">
         {PROVIDERS.map((p) => (
@@ -152,7 +151,7 @@ function SignIn() {
           </Button>
         ))}
       </div>
-      <p className="text-center text-xs text-muted-foreground">ou</p>
+      <p className="text-center text-xs text-muted-foreground">{t.login.or}</p>
       <form onSubmit={submit} className="grid gap-2">
         <Input
           type="email"
@@ -163,18 +162,18 @@ function SignIn() {
         />
         <Input
           type="password"
-          placeholder="mot de passe"
+          placeholder={t.login.password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
         <Button type="submit" disabled={busy}>
           <LogIn />
-          se connecter
+          {t.login.signInButton}
         </Button>
       </form>
       <Button variant="text" size="sm" className="justify-self-end" onClick={forgot}>
-        mot de passe oublié ?
+        {t.login.forgot}
       </Button>
       <Message {...message} />
     </div>
@@ -184,6 +183,7 @@ function SignIn() {
 export default function LoginPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const t = useT();
 
   useEffect(() => {
     if (user) router.replace("/account");
@@ -199,9 +199,7 @@ export default function LoginPage() {
             <SignIn />
           </>
         ) : (
-          <p className="text-center text-muted-foreground md:col-span-2">
-            Les comptes ne sont pas configurés sur cette instance.
-          </p>
+          <p className="text-center text-muted-foreground md:col-span-2">{t.login.disabled}</p>
         )}
       </main>
       <Footer />
