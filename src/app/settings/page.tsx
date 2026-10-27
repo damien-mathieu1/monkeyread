@@ -5,6 +5,7 @@ import {
   Crosshair,
   Gauge,
   Keyboard,
+  Sparkles,
   Languages,
   LayoutList,
   Pause,
@@ -167,6 +168,17 @@ export default function SettingsPage() {
               ]}
               value={settings.progressStyle}
               onChange={(v) => update("progressStyle", v)}
+            />
+          </Setting>
+          <Setting
+            icon={Sparkles}
+            title={t.settings.animateNumbers.title}
+            description={t.settings.animateNumbers.description}
+          >
+            <OptionButtons
+              options={ON_OFF}
+              value={settings.animateNumbers}
+              onChange={(v) => update("animateNumbers", v)}
             />
           </Setting>
         </Section>
