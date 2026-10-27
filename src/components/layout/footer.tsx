@@ -116,9 +116,9 @@ function ContactDialog({ open, onOpenChange }: DialogProps) {
           <BigLink
             icon={Lightbulb}
             label="idée"
-            href={`${REPO_URL}/issues/new?labels=enhancement`}
+            href={`${REPO_URL}/issues/new?template=feature_request.yml`}
           />
-          <BigLink icon={Bug} label="bug" href={`${REPO_URL}/issues/new?labels=bug`} />
+          <BigLink icon={Bug} label="bug" href={`${REPO_URL}/issues/new?template=bug_report.yml`} />
         </div>
       </DialogContent>
     </Dialog>
