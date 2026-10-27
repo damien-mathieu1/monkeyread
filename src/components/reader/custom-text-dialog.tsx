@@ -4,7 +4,8 @@ import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ACCEPTED_FILES, extractBook } from "@/lib/extract-text";
+import { ACCEPTED_FILES, extractBook, extractErrorCode } from "@/lib/extract-text";
+import { useT } from "@/lib/i18n";
 import {
   Dialog,
   DialogContent,
@@ -22,17 +23,18 @@ type Props = {
 
 export function CustomTextDialog({ open, onOpenChange, initialText, onSave }: Props) {
   const [value, setValue] = useState(initialText);
+  const t = useT();
   const [status, setStatus] = useState("");
   const input = useRef<HTMLInputElement>(null);
 
   const importFile = async (file: File | undefined) => {
     if (!file) return;
-    setStatus(`import de ${file.name}...`);
+    setStatus(t.library.importing(file.name));
     try {
       setValue((await extractBook(file)).text);
       setStatus("");
     } catch (e) {
-      setStatus((e as Error).message);
+      setStatus(t.library.errors[extractErrorCode(e)]);
     }
   };
 
@@ -49,12 +51,12 @@ export function CustomTextDialog({ open, onOpenChange, initialText, onSave }: Pr
     >
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>texte personnalisé</DialogTitle>
+          <DialogTitle>{t.reader.customText}</DialogTitle>
         </DialogHeader>
         <Textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="colle ton texte ici..."
+          placeholder={t.reader.pastePlaceholder}
           className="h-72"
           autoFocus
         />
@@ -62,7 +64,7 @@ export function CustomTextDialog({ open, onOpenChange, initialText, onSave }: Pr
         <DialogFooter>
           <Button onClick={() => input.current?.click()}>
             <Upload />
-            importer un fichier
+            {t.reader.importFile}
           </Button>
           <input
             ref={input}
@@ -81,7 +83,7 @@ export function CustomTextDialog({ open, onOpenChange, initialText, onSave }: Pr
               onOpenChange(false);
             }}
           >
-            ok
+            {t.common.ok}
           </Button>
         </DialogFooter>
       </DialogContent>

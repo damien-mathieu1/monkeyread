@@ -37,9 +37,6 @@ export function chunkWords(words: RsvpWord[], chunkSize: number): RsvpWord[][] {
   return chunks;
 }
 
-export const SAMPLE_TEXT =
-  "Lire vite n'est pas une question de talent, mais d'habitude. Quand les mots arrivent un par un, au même endroit, tes yeux n'ont plus besoin de sauter d'une ligne à l'autre. Ils restent immobiles, et ton cerveau fait le reste. La lettre colorée marque le point où le regard se pose naturellement. Commence doucement, autour de deux cent cinquante mots par minute, puis augmente la vitesse petit à petit. Tu seras surpris de voir à quel point cela devient agréable. Quand tu es prêt, colle ton propre texte et lance la lecture.";
-
 export function msPerWord(wpm: number): number {
   return 60000 / wpm;
 }

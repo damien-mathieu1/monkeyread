@@ -11,11 +11,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 const TABS = [
-  { id: "account", label: "compte", icon: User },
-  { id: "auth", label: "authentification", icon: KeyRound },
-  { id: "danger", label: "zone dangereuse", icon: TriangleAlert },
+  { id: "account", icon: User },
+  { id: "auth", icon: KeyRound },
+  { id: "danger", icon: TriangleAlert },
 ] as const;
 
 function Status({ text }: { text: { msg: string; error: boolean } }) {
@@ -28,22 +29,23 @@ function Status({ text }: { text: { msg: string; error: boolean } }) {
 }
 
 function RenameSetting({ current, onDone }: { current: string; onDone: () => void }) {
+  const t = useT();
   const [name, setName] = useState(current);
   const [status, setStatus] = useState({ msg: "", error: false });
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase.rpc("rename_me", { p_name: name });
-    if (error) return setStatus({ msg: "pseudo indisponible ou invalide", error: true });
-    setStatus({ msg: "pseudo mis à jour", error: false });
+    if (error) return setStatus({ msg: t.accountSettings.rename.invalid, error: true });
+    setStatus({ msg: t.accountSettings.rename.done, error: false });
     onDone();
   };
 
   return (
     <Setting
       icon={UserPen}
-      title="changer de pseudo"
-      description="3 à 20 caractères : lettres, chiffres, _ . - L'adresse de ton profil public change aussi."
+      title={t.accountSettings.rename.title}
+      description={t.accountSettings.rename.description}
     >
       <form onSubmit={save} className="grid gap-2">
         <Input
@@ -54,7 +56,7 @@ function RenameSetting({ current, onDone }: { current: string; onDone: () => voi
           required
         />
         <Button type="submit" disabled={name === current}>
-          changer
+          {t.accountSettings.rename.button}
         </Button>
         <Status text={status} />
       </form>
@@ -63,6 +65,7 @@ function RenameSetting({ current, onDone }: { current: string; onDone: () => voi
 }
 
 function PasswordSetting() {
+  const t = useT();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState({ msg: "", error: false });
 
@@ -72,7 +75,7 @@ function PasswordSetting() {
     setStatus(
       error
         ? { msg: error.message, error: true }
-        : { msg: "mot de passe mis à jour", error: false },
+        : { msg: t.accountSettings.password.done, error: false },
     );
     if (!error) setPassword("");
   };
@@ -80,19 +83,19 @@ function PasswordSetting() {
   return (
     <Setting
       icon={KeyRound}
-      title="mot de passe"
-      description="Définis ou change le mot de passe de ton compte. Utile aussi pour te connecter par email si tu t'es inscrit avec Google, GitHub ou Discord."
+      title={t.accountSettings.password.title}
+      description={t.accountSettings.password.description}
     >
       <form onSubmit={save} className="grid gap-2">
         <Input
           type="password"
-          placeholder="nouveau mot de passe"
+          placeholder={t.accountSettings.password.placeholder}
           value={password}
           minLength={8}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Button type="submit">enregistrer</Button>
+        <Button type="submit">{t.common.save}</Button>
         <Status text={status} />
       </form>
     </Setting>
@@ -100,6 +103,7 @@ function PasswordSetting() {
 }
 
 function DeleteSetting({ name }: { name: string }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -115,25 +119,22 @@ function DeleteSetting({ name }: { name: string }) {
   return (
     <Setting
       icon={TriangleAlert}
-      title="supprimer le compte"
-      description="Supprime ton compte, ton profil, tes réglages et tout ton historique de lecture. Irréversible."
+      title={t.accountSettings.delete.title}
+      description={t.accountSettings.delete.description}
     >
       <Button variant="destructive" className="w-full" onClick={() => setOpen(true)}>
-        supprimer le compte
+        {t.accountSettings.delete.title}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>supprimer le compte</DialogTitle>
+            <DialogTitle>{t.accountSettings.delete.title}</DialogTitle>
           </DialogHeader>
-          <p>
-            Tape <span className="text-primary">{name}</span> pour confirmer. Tout ton historique
-            sera perdu.
-          </p>
+          <p>{t.accountSettings.delete.confirm(<span className="text-primary">{name}</span>)}</p>
           <Input value={confirm} onChange={(e) => setConfirm(e.target.value)} />
           {error && <p className="text-destructive">{error}</p>}
           <Button variant="destructive" disabled={confirm !== name} onClick={remove}>
-            supprimer définitivement
+            {t.accountSettings.delete.button}
           </Button>
         </DialogContent>
       </Dialog>
@@ -144,6 +145,7 @@ function DeleteSetting({ name }: { name: string }) {
 export default function AccountSettingsPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const router = useRouter();
+  const t = useT();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("account");
 
   useEffect(() => {
@@ -160,7 +162,7 @@ export default function AccountSettingsPage() {
   if (!profile) {
     return (
       <PageShell>
-        <CenteredMessage>chargement...</CenteredMessage>
+        <CenteredMessage>{t.common.loading}</CenteredMessage>
       </PageShell>
     );
   }
@@ -169,7 +171,7 @@ export default function AccountSettingsPage() {
     <PageShell>
       <div className="grid gap-8 md:grid-cols-4">
         <nav className="flex h-max flex-col gap-1 rounded-lg bg-muted p-4">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {TABS.map(({ id, icon: Icon }) => (
             <Button
               key={id}
               variant="text"
@@ -178,7 +180,7 @@ export default function AccountSettingsPage() {
               onClick={() => setTab(id)}
             >
               <Icon />
-              {label}
+              {t.accountSettings.tabs[id]}
             </Button>
           ))}
         </nav>

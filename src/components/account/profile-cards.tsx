@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/account/avatar";
 import type { ProfileData, Rank } from "@/hooks/use-profile-data";
 import { formatDate, formatDuration, formatNumber, formatRank } from "@/lib/format";
+import { useT } from "@/lib/i18n";
 
 function Card({ children }: { children: React.ReactNode }) {
   return <div className="rounded-lg bg-muted p-6">{children}</div>;
@@ -22,11 +23,12 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export function ProfileCard({ data, actions }: { data: ProfileData; actions?: React.ReactNode }) {
+  const t = useT();
   const p = data.profile;
   const links = [
     p.github && { href: `https://github.com/${p.github}`, icon: Code, label: "github" },
     p.twitter && { href: `https://x.com/${p.twitter}`, icon: AtSign, label: "x" },
-    p.website && { href: p.website, icon: Globe, label: "site" },
+    p.website && { href: p.website, icon: Globe, label: t.profile.website },
   ].filter(Boolean) as { href: string; icon: typeof Globe; label: string }[];
 
   return (
@@ -37,16 +39,16 @@ export function ProfileCard({ data, actions }: { data: ProfileData; actions?: Re
           <div className="flex flex-col gap-1">
             <span className="text-2xl">{p.name}</span>
             <span className="text-xs text-muted-foreground">
-              inscrit le {formatDate(p.created_at)}
+              {t.profile.joined(formatDate(p.created_at))}
             </span>
             {actions}
           </div>
         </div>
         <Divider />
         <div className="grid flex-1 grid-cols-3 gap-4">
-          <Stat label="lectures lancées" value={formatNumber(p.sessions_started)} />
-          <Stat label="lectures finies" value={formatNumber(p.sessions_completed)} />
-          <Stat label="temps de lecture" value={formatDuration(p.time_ms)} />
+          <Stat label={t.profile.started} value={formatNumber(p.sessions_started)} />
+          <Stat label={t.profile.completed} value={formatNumber(p.sessions_completed)} />
+          <Stat label={t.profile.readingTime} value={formatDuration(p.time_ms)} />
         </div>
         {links.length > 0 && (
           <>
@@ -84,12 +86,13 @@ function RankStat({ label, rank }: { label: string; rank: Rank }) {
 }
 
 export function RankCard({ data }: { data: ProfileData }) {
+  const t = useT();
   return (
     <Card>
       <div className="grid items-center gap-4 md:grid-cols-3">
-        <span className="text-muted-foreground">classements de tous les temps</span>
-        <RankStat label="mots lus" rank={data.wordsRank} />
-        <RankStat label="temps de lecture" rank={data.timeRank} />
+        <span className="text-muted-foreground">{t.profile.allTimeRanks}</span>
+        <RankStat label={t.profile.wordsRead} rank={data.wordsRank} />
+        <RankStat label={t.profile.readingTime} rank={data.timeRank} />
       </div>
     </Card>
   );
@@ -106,29 +109,34 @@ function Best({ label, value, sub }: { label: string; value: string; sub?: strin
 }
 
 export function BestsCard({ data }: { data: ProfileData }) {
+  const t = useT();
   const p = data.profile;
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <Card>
         <div className="grid grid-cols-3 gap-4">
-          <Best label="mots lus" value={formatNumber(p.words_read)} />
+          <Best label={t.profile.wordsRead} value={formatNumber(p.words_read)} />
           <Best
-            label="plus longue session"
+            label={t.profile.longestSession}
             value={p.longest_session_words ? formatNumber(p.longest_session_words) : "-"}
             sub={p.longest_session_ms ? formatDuration(p.longest_session_ms) : undefined}
           />
           <Best
-            label="vitesse habituelle"
+            label={t.profile.usualSpeed}
             value={p.usual_wpm ? String(p.usual_wpm) : "-"}
-            sub={p.usual_wpm ? "mots/min" : undefined}
+            sub={p.usual_wpm ? t.profile.wpm : undefined}
           />
         </div>
       </Card>
       <Card>
         <div className="grid grid-cols-3 gap-4">
-          <Best label="série en cours" value={String(p.current_streak)} sub="jours" />
-          <Best label="meilleure série" value={String(p.best_streak)} sub="jours" />
-          <Best label="jours actifs" value={formatNumber(p.active_days)} />
+          <Best
+            label={t.profile.currentStreak}
+            value={String(p.current_streak)}
+            sub={t.profile.days}
+          />
+          <Best label={t.profile.bestStreak} value={String(p.best_streak)} sub={t.profile.days} />
+          <Best label={t.profile.activeDays} value={formatNumber(p.active_days)} />
         </div>
       </Card>
     </div>
