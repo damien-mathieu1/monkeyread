@@ -6,9 +6,16 @@ import { I18nProvider } from "@/lib/i18n";
 import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
 
+const title = "monkeyread | A minimalistic, customizable speed reader";
+const description =
+  "Read faster, one word at a time. A free RSVP speed reader with the look and feel of monkeytype: themes, fonts, sounds, your own books (PDF, EPUB), stats and leaderboards.";
+
 export const metadata: Metadata = {
-  title: "monkeyread",
-  description: "RSVP speed reading, monkeytype-style.",
+  metadataBase: new URL("https://monkeyread.eu"),
+  title,
+  description,
+  openGraph: { title, description, url: "/", siteName: "monkeyread", type: "website" },
+  twitter: { card: "summary_large_image", title, description },
 };
 
 // Applies saved theme and font before first paint to avoid a flash.
