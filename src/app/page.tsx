@@ -8,7 +8,8 @@ import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useT } from "@/lib/i18n";
 import { getBook, savePosition, type Book } from "@/lib/library";
-import { formatRemaining } from "@/lib/format";
+import NumberFlow from "@number-flow/react";
+import { RemainingTime } from "@/components/reader/remaining-time";
 import { playSound } from "@/lib/sound";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -215,11 +216,11 @@ export default function Home() {
               (settings.progressStyle === "off" || settings.progressStyle === "bar") && "invisible",
             )}
           >
-            {rsvp.index}/{rsvp.total}
+            <NumberFlow value={rsvp.index} />/{rsvp.total}
             {!rsvp.done && (
               <span className="text-muted-foreground">
                 {" "}
-                · {t.reader.remaining(formatRemaining(rsvp.remainingMs))}
+                · {t.reader.remaining(<RemainingTime ms={rsvp.remainingMs} />)}
               </span>
             )}
           </span>

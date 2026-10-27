@@ -11,15 +11,26 @@ export function formatDuration(ms: number) {
   return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
 }
 
-/** Time left, two most significant units: "1 h 5 min", "4 min 12 s", "12 s 340 ms". */
-export function formatRemaining(ms: number) {
+/** Time left as its two most significant units: 1 h 5 min, 4 min 12 s, 12 s 340 ms. */
+export function remainingParts(ms: number): { value: number; unit: string }[] {
   ms = Math.max(0, Math.round(ms));
   const h = Math.floor(ms / 3600000);
   const m = Math.floor((ms % 3600000) / 60000);
   const s = Math.floor((ms % 60000) / 1000);
-  if (h > 0) return `${h} h ${m} min`;
-  if (m > 0) return `${m} min ${s} s`;
-  return `${s} s ${ms % 1000} ms`;
+  if (h > 0)
+    return [
+      { value: h, unit: "h" },
+      { value: m, unit: "min" },
+    ];
+  if (m > 0)
+    return [
+      { value: m, unit: "min" },
+      { value: s, unit: "s" },
+    ];
+  return [
+    { value: s, unit: "s" },
+    { value: ms % 1000, unit: "ms" },
+  ];
 }
 
 export function formatNumber(n: number) {
