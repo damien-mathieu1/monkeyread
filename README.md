@@ -2,7 +2,7 @@
 
 A free speed-reading app with the look and feel of [monkeytype](https://monkeytype.com).
 
-**Try it: [monkeyread.dmathieu.dev](https://monkeyread.dmathieu.dev)**
+**Try it: [monkeyread.eu](https://monkeyread.eu)**
 
 ![monkeyread demo: words appear one at a time while reading, then the speed goes up with the arrow keys](docs/demo.gif)
 

@@ -150,7 +150,7 @@ function SupportDialog({ open, onOpenChange }: DialogProps) {
         <p>{t.footer.supportBody}</p>
         <div className="grid grid-cols-3 gap-2">
           <BigLink icon={Star} label={t.footer.star} href={REPO_URL} />
-          <BigLink icon={Share2} label={t.footer.share} href="https://monkeyread.dmathieu.dev" />
+          <BigLink icon={Share2} label={t.footer.share} href="https://monkeyread.eu" />
           <BigLink icon={Heart} label="monkeytype" href="https://monkeytype.com" />
         </div>
       </DialogContent>
