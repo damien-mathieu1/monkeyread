@@ -19,4 +19,4 @@ You will get an answer as soon as possible. monkeyread is a volunteer project wi
 
 ## Supported versions
 
-Only the version deployed at [monkeyread.dmathieu.dev](https://monkeyread.dmathieu.dev) (the `main` branch) is supported.
+Only the version deployed at [monkeyread.eu](https://monkeyread.eu) (the `main` branch) is supported.
