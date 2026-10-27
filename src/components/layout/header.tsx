@@ -8,6 +8,7 @@ import {
   Crown,
   Globe,
   Info,
+  Library,
   LogOut,
   Settings,
   User,
@@ -102,6 +103,9 @@ export function Header() {
       <nav className="flex flex-1 items-center gap-1">
         <NavIcon href="/" label="lecture">
           <BookOpenText />
+        </NavIcon>
+        <NavIcon href="/library" label="bibliothèque">
+          <Library />
         </NavIcon>
         {accountsEnabled && (
           <NavIcon href="/leaderboards" label="classements">

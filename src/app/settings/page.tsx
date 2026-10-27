@@ -16,6 +16,7 @@ import {
   Highlighter,
   Palette,
 } from "lucide-react";
+import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ON_OFF, OptionButtons, Section, Setting } from "@/components/settings/setting";
 import { FONT_SIZES } from "@/components/reader/word-display";
@@ -257,6 +258,7 @@ export default function SettingsPage() {
           </Setting>
         </Section>
       </main>
+      <Footer />
     </div>
   );
 }
