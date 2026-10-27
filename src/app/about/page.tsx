@@ -2,8 +2,6 @@
 
 import { Heart, Info, Palette, Scale } from "lucide-react";
 import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { useSettings } from "@/hooks/use-settings";
 
 function H2({ icon: Icon, children }: { icon: typeof Info; children: React.ReactNode }) {
   return (
@@ -28,8 +26,6 @@ function A({ href, children }: { href: string; children: React.ReactNode }) {
 }
 
 export default function AboutPage() {
-  const { settings, update } = useSettings();
-
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-8 py-8">
       <Header />
@@ -76,13 +72,12 @@ export default function AboutPage() {
             GPL-3.0.
           </p>
           <p>
-            Les textes que tu colles restent dans ton navigateur. Rien n&apos;est envoyé à un
-            serveur.
+            Les textes que tu colles restent dans ton navigateur. Seuls partent vers un serveur tes
+            statistiques de lecture et tes réglages si tu as un compte, et des visites anonymes,
+            sans cookie, via Vercel Analytics.
           </p>
         </section>
       </main>
-
-      <Footer settings={settings} update={update} />
     </div>
   );
 }

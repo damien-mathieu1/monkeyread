@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRsvp } from "@/hooks/use-rsvp";
 import { useSettings } from "@/hooks/use-settings";
+import { useSessionRecorder } from "@/hooks/use-session-recorder";
+import { useAuth } from "@/components/auth/auth-provider";
 import { SAMPLE_TEXT } from "@/lib/rsvp";
 import { playSound } from "@/lib/sound";
 import { Header } from "@/components/layout/header";
@@ -18,8 +20,21 @@ export default function Home() {
   const [textDialogOpen, setTextDialogOpen] = useState(false);
   const [mouseMoved, setMouseMoved] = useState(false);
   const [runId, setRunId] = useState(0);
+  const { user } = useAuth();
   const rsvp = useRsvp(text, settings);
   const { toggle, reset, step, playing, index } = rsvp;
+
+  useSessionRecorder({
+    user,
+    playing,
+    done: rsvp.done,
+    index,
+    currentChunk: rsvp.currentChunk,
+    totalWords: rsvp.totalWords,
+    wpm: settings.wpm,
+    chunkSize: settings.chunkSize,
+    sourceKey: `${runId}|${settings.chunkSize}|${text}`,
+  });
 
   const focused = playing && !mouseMoved;
 
@@ -118,7 +133,7 @@ export default function Home() {
       </main>
 
       <div className={focusFade}>
-        <Footer settings={settings} update={update} keyTips />
+        <Footer settings={settings} />
       </div>
 
       <CustomTextDialog
