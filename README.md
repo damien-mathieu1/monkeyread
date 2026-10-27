@@ -2,6 +2,10 @@
 
 A free speed-reading app with the look and feel of [monkeytype](https://monkeytype.com).
 
+**Try it: [monkeyread.dmathieu.dev](https://monkeyread.dmathieu.dev)**
+
+![monkeyread demo: words appear one at a time while reading, then the speed goes up with the arrow keys](docs/demo.gif)
+
 Words appear one at a time in the same spot, with one letter highlighted where your eye should land (RSVP reading). Paste any text or import a book, pick a speed, and read.
 
 ## Features
