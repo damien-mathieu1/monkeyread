@@ -11,6 +11,7 @@ Words appear one at a time in the same spot, with one letter highlighted where y
 - Focus mode: everything but the word fades out while reading
 - Keyboard shortcuts: `space` play/pause, `tab` restart, `←` `→` previous/next word (`shift` for 10)
 - Library: import PDF, EPUB or TXT books, extracted in the browser (pdf.js, JSZip) and kept in IndexedDB with your reading position; links to free public-domain sources
+- French and English interface, picked from the browser language and switchable in settings
 - Settings page: sounds, 10 fonts, text size, progress style, guides, themes, and more
 - 5 themes (serika dark, serika, paper, nord, dracula)
 - Texts and books stay in your browser; an optional account only syncs reading stats and settings

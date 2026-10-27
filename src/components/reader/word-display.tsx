@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import type { RsvpWord } from "@/lib/rsvp";
 
 export const FONT_SIZES = [1, 1.5, 2, 3, 4] as const;
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export function WordDisplay({ chunk, ended, highlight, guides, fontSize }: Props) {
+  const t = useT();
   const parts = chunk?.length ? splitAtPivot(chunk) : null;
 
   return (
@@ -45,7 +47,7 @@ export function WordDisplay({ chunk, ended, highlight, guides, fontSize }: Props
       <div className={cn("flex w-full whitespace-pre", SIZE_CLASS[fontSize] ?? "text-5xl")}>
         {ended ? (
           <span className="flex-1 animate-in text-center text-muted-foreground duration-125 fade-in">
-            fin.
+            {t.reader.end}
           </span>
         ) : parts ? (
           <>

@@ -1,3 +1,10 @@
+// Set by the i18n provider; formatters follow the chosen language.
+let locale = "fr-FR";
+
+export function setFormatLocale(next: string) {
+  locale = next;
+}
+
 export function formatDuration(ms: number) {
   const s = Math.floor(ms / 1000);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -11,17 +18,24 @@ export function formatRemaining(ms: number) {
 }
 
 export function formatNumber(n: number) {
-  return n.toLocaleString("fr-FR");
+  return n.toLocaleString(locale);
 }
 
+const EN_SUFFIX: Record<string, string> = { one: "st", two: "nd", few: "rd", other: "th" };
+
 export function formatRank(rank: number) {
-  return rank === 1 ? "1er" : `${formatNumber(rank)}e`;
+  if (locale.startsWith("fr")) return rank === 1 ? "1er" : `${formatNumber(rank)}e`;
+  return `${formatNumber(rank)}${EN_SUFFIX[new Intl.PluralRules("en", { type: "ordinal" }).select(rank)]}`;
 }
 
 export function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR", {
+  return new Date(iso).toLocaleDateString(locale, {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+}
+
+export function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString(locale);
 }

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase, type Profile } from "@/lib/supabase";
+import { useT } from "@/lib/i18n";
 
 type Props = {
   profile: Profile;
@@ -25,6 +26,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export function EditProfileDialog({ profile, open, onOpenChange, onSaved }: Props) {
+  const t = useT();
   const [form, setForm] = useState(profile);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -45,7 +47,7 @@ export function EditProfileDialog({ profile, open, onOpenChange, onSaved }: Prop
       })
       .eq("id", profile.id);
     setBusy(false);
-    if (error) return setError("valeur invalide : vérifie les liens et le site (https://...)");
+    if (error) return setError(t.account.invalidLinks);
     onSaved();
     onOpenChange(false);
   };
@@ -63,13 +65,10 @@ export function EditProfileDialog({ profile, open, onOpenChange, onSaved }: Prop
     >
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>modifier le profil</DialogTitle>
+          <DialogTitle>{t.account.editProfile}</DialogTitle>
         </DialogHeader>
         <form onSubmit={save} className="grid gap-4">
-          <p className="text-sm text-muted-foreground">
-            Le pseudo se change dans les paramètres du compte. L&apos;avatar vient de ton compte
-            Google, GitHub ou Discord.
-          </p>
+          <p className="text-sm text-muted-foreground">{t.account.editIntro}</p>
           <Field label="bio">
             <Textarea
               value={form.bio}
@@ -98,7 +97,7 @@ export function EditProfileDialog({ profile, open, onOpenChange, onSaved }: Prop
               />
             </div>
           </Field>
-          <Field label="site">
+          <Field label={t.profile.website}>
             <Input
               type="url"
               placeholder="https://"
@@ -109,11 +108,11 @@ export function EditProfileDialog({ profile, open, onOpenChange, onSaved }: Prop
           </Field>
           <label className="flex items-center gap-3">
             <Switch checked={form.show_activity} onCheckedChange={(v) => set("show_activity", v)} />
-            Afficher la grille d&apos;activité sur le profil public.
+            {t.account.showActivity}
           </label>
           {error && <p className="text-destructive">{error}</p>}
           <Button type="submit" disabled={busy}>
-            enregistrer
+            {t.common.save}
           </Button>
         </form>
       </DialogContent>

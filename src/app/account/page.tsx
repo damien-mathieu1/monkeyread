@@ -12,10 +12,12 @@ import { CenteredMessage, PageShell } from "@/components/layout/page-shell";
 import { Button } from "@/components/ui/button";
 import { useProfileData } from "@/hooks/use-profile-data";
 import { supabase, type ReadingSession } from "@/lib/supabase";
+import { useT } from "@/lib/i18n";
 
 export default function AccountPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const router = useRouter();
+  const t = useT();
   const { data, reload } = useProfileData(profile?.name);
   const [sessions, setSessions] = useState<ReadingSession[]>([]);
   const [editOpen, setEditOpen] = useState(false);
@@ -38,7 +40,7 @@ export default function AccountPage() {
   if (!profile || !data) {
     return (
       <PageShell>
-        <CenteredMessage>chargement...</CenteredMessage>
+        <CenteredMessage>{t.common.loading}</CenteredMessage>
       </PageShell>
     );
   }
@@ -55,7 +57,7 @@ export default function AccountPage() {
             onClick={() => setEditOpen(true)}
           >
             <Pencil />
-            modifier le profil
+            {t.account.editProfile}
           </Button>
         }
       />

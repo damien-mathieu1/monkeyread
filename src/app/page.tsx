@@ -6,7 +6,7 @@ import { useRsvp } from "@/hooks/use-rsvp";
 import { useSettings } from "@/hooks/use-settings";
 import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import { useAuth } from "@/components/auth/auth-provider";
-import { SAMPLE_TEXT } from "@/lib/rsvp";
+import { useT } from "@/lib/i18n";
 import { getBook, savePosition, type Book } from "@/lib/library";
 import { formatRemaining } from "@/lib/format";
 import { playSound } from "@/lib/sound";
@@ -38,7 +38,10 @@ function loadLast(): Partial<{ bookId: string; text: string; position: number }>
 
 export default function Home() {
   const { settings, update } = useSettings();
-  const [text, setText] = useState(SAMPLE_TEXT);
+  const t = useT();
+  // null shows the sample text in the current language.
+  const [customText, setText] = useState<string | null>(null);
+  const text = customText ?? t.reader.sample;
   const [book, setBook] = useState<Book | null>(null);
   const [startWord, setStartWord] = useState(0);
   const [textDialogOpen, setTextDialogOpen] = useState(false);
@@ -75,12 +78,12 @@ export default function Home() {
   save.current = () => {
     if (!touched.current) return;
     if (book) void savePosition(book.id, rsvp.word);
-    else saveLast({ text, position: rsvp.word });
+    else if (customText) saveLast({ text: customText, position: rsvp.word });
   };
   useEffect(() => {
     if (playing) touched.current = true;
     if (!playing || index % 25 === 0) save.current();
-  }, [book, text, playing, index, rsvp.word]);
+  }, [book, customText, playing, index, rsvp.word]);
   useEffect(() => {
     const onHide = () => save.current();
     window.addEventListener("pagehide", onHide);
@@ -216,7 +219,7 @@ export default function Home() {
             {!rsvp.done && (
               <span className="text-muted-foreground">
                 {" "}
-                · encore {formatRemaining(rsvp.remainingMs)}
+                · {t.reader.remaining(formatRemaining(rsvp.remainingMs))}
               </span>
             )}
           </span>
