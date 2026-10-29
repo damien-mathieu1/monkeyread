@@ -46,8 +46,8 @@ function KeyTips({ settings }: { settings: Settings }) {
         {t.keys.skip(settings.skipSeconds)}
       </div>
       <div>
-        <Kbd>↑</Kbd> <Kbd>↓</Kbd> - {t.keys.speed} · <Kbd>1</Kbd> <Kbd>2</Kbd> <Kbd>3</Kbd> -{" "}
-        {t.keys.chunk} · <Kbd>p</Kbd> - {t.reader.punctuationPause} · <Kbd>t</Kbd> - {t.reader.text}
+        <Kbd>↑</Kbd> <Kbd>↓</Kbd> - {t.keys.speed} · <Kbd>1–5</Kbd> - {t.keys.chunk} · <Kbd>p</Kbd>{" "}
+        - {t.reader.punctuationPause} · <Kbd>t</Kbd> - {t.reader.text}
       </div>
     </div>
   );

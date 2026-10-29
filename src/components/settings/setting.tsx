@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -58,7 +59,7 @@ export function OptionButtons<T extends string | number | boolean>({
   options: Option<T>[];
   value: T;
   onChange: (value: T) => void;
-  columns?: 1 | 2 | 3 | 4;
+  columns?: 1 | 2 | 3 | 4 | 5;
 }) {
   return (
     <div
@@ -67,6 +68,7 @@ export function OptionButtons<T extends string | number | boolean>({
         columns === 2 && "grid-cols-2",
         columns === 3 && "grid-cols-3",
         columns === 4 && "grid-cols-4",
+        columns === 5 && "grid-cols-5",
       )}
     >
       {options.map((o) => (
@@ -79,6 +81,35 @@ export function OptionButtons<T extends string | number | boolean>({
         </Button>
       ))}
     </div>
+  );
+}
+
+/** Number field that saves a whole number within bounds on blur or Enter, else restores. */
+export function NumberInput({
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <Input
+      key={value}
+      type="number"
+      min={min}
+      max={max}
+      defaultValue={value}
+      onBlur={(e) => {
+        const v = Math.round(Number(e.target.value));
+        if (v >= min && v <= max) onChange(v);
+        else e.target.value = String(value);
+      }}
+      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+    />
   );
 }
 
