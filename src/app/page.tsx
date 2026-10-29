@@ -13,7 +13,7 @@ import { RemainingTime } from "@/components/reader/remaining-time";
 import { playSound } from "@/lib/sound";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { ConfigBar } from "@/components/reader/config-bar";
+import { CHUNK_SIZES, ConfigBar } from "@/components/reader/config-bar";
 import { CustomTextDialog } from "@/components/reader/custom-text-dialog";
 import { WordDisplay } from "@/components/reader/word-display";
 
@@ -152,7 +152,7 @@ export default function Home() {
         e.preventDefault();
         const delta = e.key === "ArrowUp" ? WPM_STEP : -WPM_STEP;
         update("wpm", Math.max(50, Math.min(settings.wpm + delta, 2000)));
-      } else if (["1", "2", "3"].includes(e.key)) {
+      } else if (CHUNK_SIZES.includes(Number(e.key))) {
         update("chunkSize", Number(e.key));
       } else if (e.key === "p") {
         update("punctuationPause", !settings.punctuationPause);
