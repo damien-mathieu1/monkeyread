@@ -20,11 +20,16 @@ import {
 } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { ON_OFF, OptionButtons, Section, Setting } from "@/components/settings/setting";
-import { CHUNK_SIZES } from "@/components/reader/config-bar";
+import {
+  NumberInput,
+  ON_OFF,
+  OptionButtons,
+  Section,
+  Setting,
+} from "@/components/settings/setting";
+import { CHUNK_SIZES, MAX_CHUNK_SIZE } from "@/components/reader/config-bar";
 import { FONT_SIZES, WordDisplay } from "@/components/reader/word-display";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { useSettings, type Settings } from "@/hooks/use-settings";
 import { FONTS } from "@/lib/font-list";
@@ -106,18 +111,11 @@ export default function SettingsPage() {
             title={t.settings.speed.title}
             description={t.settings.speed.description}
           >
-            <Input
-              key={settings.wpm}
-              type="number"
+            <NumberInput
+              value={settings.wpm}
               min={50}
               max={2000}
-              defaultValue={settings.wpm}
-              onBlur={(e) => {
-                const v = Math.round(Number(e.target.value));
-                if (v >= 50 && v <= 2000) update("wpm", v);
-                else e.target.value = String(settings.wpm);
-              }}
-              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+              onChange={(v) => update("wpm", v)}
             />
           </Setting>
           <Setting
@@ -125,12 +123,20 @@ export default function SettingsPage() {
             title={t.settings.chunkSize.title}
             description={t.settings.chunkSize.description}
           >
-            <OptionButtons
-              columns={5}
-              options={CHUNK_SIZES.map((n) => ({ value: n, label: String(n) }))}
-              value={settings.chunkSize}
-              onChange={(v) => update("chunkSize", v)}
-            />
+            <div className="grid gap-2">
+              <OptionButtons
+                columns={5}
+                options={CHUNK_SIZES.map((n) => ({ value: n, label: String(n) }))}
+                value={settings.chunkSize}
+                onChange={(v) => update("chunkSize", v)}
+              />
+              <NumberInput
+                value={settings.chunkSize}
+                min={1}
+                max={MAX_CHUNK_SIZE}
+                onChange={(v) => update("chunkSize", v)}
+              />
+            </div>
           </Setting>
           <Setting
             icon={Highlighter}

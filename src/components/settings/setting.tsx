@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -80,6 +81,35 @@ export function OptionButtons<T extends string | number | boolean>({
         </Button>
       ))}
     </div>
+  );
+}
+
+/** Number field that saves a whole number within bounds on blur or Enter, else restores. */
+export function NumberInput({
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <Input
+      key={value}
+      type="number"
+      min={min}
+      max={max}
+      defaultValue={value}
+      onBlur={(e) => {
+        const v = Math.round(Number(e.target.value));
+        if (v >= min && v <= max) onChange(v);
+        else e.target.value = String(value);
+      }}
+      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+    />
   );
 }
 

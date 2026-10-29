@@ -17,6 +17,8 @@ import { useT } from "@/lib/i18n";
 
 const WPM_PRESETS = [200, 250, 300, 400, 500];
 export const CHUNK_SIZES = [1, 2, 3, 4, 5];
+/** Matches the reading_sessions.chunk_size check in the database. */
+export const MAX_CHUNK_SIZE = 10;
 
 type Props = {
   settings: Settings;
