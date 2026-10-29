@@ -3,6 +3,7 @@
 import {
   ALargeSmall,
   Crosshair,
+  FastForward,
   Gauge,
   Keyboard,
   Sparkles,
@@ -129,6 +130,18 @@ export default function SettingsPage() {
               options={[1, 2, 3].map((n) => ({ value: n, label: String(n) }))}
               value={settings.chunkSize}
               onChange={(v) => update("chunkSize", v)}
+            />
+          </Setting>
+          <Setting
+            icon={FastForward}
+            title={t.settings.skipSeconds.title}
+            description={t.settings.skipSeconds.description}
+          >
+            <OptionButtons
+              columns={4}
+              options={[5, 10, 15, 30].map((n) => ({ value: n, label: `${n} s` }))}
+              value={settings.skipSeconds}
+              onChange={(v) => update("skipSeconds", v)}
             />
           </Setting>
           <Setting

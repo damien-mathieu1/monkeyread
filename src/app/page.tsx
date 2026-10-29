@@ -50,7 +50,7 @@ export default function Home() {
   const [runId, setRunId] = useState(0);
   const { user } = useAuth();
   const rsvp = useRsvp(text, settings, startWord);
-  const { toggle, reset, step, playing, index } = rsvp;
+  const { toggle, reset, step, skip, playing, index } = rsvp;
   const touched = useRef(false);
 
   useEffect(() => {
@@ -148,6 +148,8 @@ export default function Home() {
         step(e.shiftKey ? -10 : -1);
       } else if (e.key === "ArrowRight") {
         step(e.shiftKey ? 10 : 1);
+      } else if (e.key === "j" || e.key === "l") {
+        skip(e.key === "j" ? -settings.skipSeconds : settings.skipSeconds);
       } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
         const delta = e.key === "ArrowUp" ? WPM_STEP : -WPM_STEP;
@@ -168,10 +170,12 @@ export default function Home() {
     toggle,
     reset,
     step,
+    skip,
     update,
     settings.quickRestart,
     settings.wpm,
     settings.punctuationPause,
+    settings.skipSeconds,
   ]);
 
   const focusFade = cn(

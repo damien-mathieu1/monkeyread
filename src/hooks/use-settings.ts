@@ -10,6 +10,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 export type Settings = {
   wpm: number;
   chunkSize: number;
+  skipSeconds: number;
   punctuationPause: boolean;
   quickRestart: "off" | "tab" | "esc";
   highlightLetter: boolean;
@@ -29,6 +30,7 @@ const STORAGE_KEY = "monkeyread-settings";
 export const DEFAULT_SETTINGS: Settings = {
   wpm: 250,
   chunkSize: 1,
+  skipSeconds: 10,
   punctuationPause: true,
   quickRestart: "tab",
   highlightLetter: true,

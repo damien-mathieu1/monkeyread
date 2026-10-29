@@ -40,6 +40,7 @@ export const fr = {
     space: "espace",
     playPause: "lecture / pause",
     prevNext: "mot précédent / suivant",
+    skip: (s: number) => `−/+ ${s} s`,
     speed: "vitesse ±25",
     chunk: "mots groupés",
   },
@@ -87,6 +88,10 @@ export const fr = {
     },
     speed: { title: "vitesse", description: "Nombre de mots affichés par minute." },
     chunkSize: { title: "mots groupés", description: "Nombre de mots affichés en même temps." },
+    skipSeconds: {
+      title: "saut en secondes",
+      description: "Durée de lecture sautée en arrière ou en avant avec j et l.",
+    },
     highlight: {
       title: "lettre mise en avant",
       description: "Colore la lettre sur laquelle l'œil doit se poser.",
