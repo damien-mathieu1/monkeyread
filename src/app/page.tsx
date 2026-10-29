@@ -145,9 +145,9 @@ export default function Home() {
         e.preventDefault();
         restart();
       } else if (e.key === "ArrowLeft") {
-        step(e.shiftKey ? -10 : -1);
+        step(-settings.wordStep * (e.shiftKey ? 10 : 1));
       } else if (e.key === "ArrowRight") {
-        step(e.shiftKey ? 10 : 1);
+        step(settings.wordStep * (e.shiftKey ? 10 : 1));
       } else if (e.key === "j" || e.key === "l") {
         skip(e.key === "j" ? -settings.skipSeconds : settings.skipSeconds);
       } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
@@ -176,6 +176,7 @@ export default function Home() {
     settings.wpm,
     settings.punctuationPause,
     settings.skipSeconds,
+    settings.wordStep,
   ]);
 
   const focusFade = cn(

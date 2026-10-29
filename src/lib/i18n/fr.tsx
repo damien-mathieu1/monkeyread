@@ -88,6 +88,11 @@ export const fr = {
     },
     speed: { title: "vitesse", description: "Nombre de mots affichés par minute." },
     chunkSize: { title: "mots groupés", description: "Nombre de mots affichés en même temps." },
+    wordStep: {
+      title: "pas des flèches",
+      description:
+        "Nombre de mots (ou de groupes) sautés à chaque appui sur ← ou →. Avec shift, 10 fois plus.",
+    },
     skipSeconds: {
       title: "saut en secondes",
       description: "Durée de lecture sautée en arrière ou en avant avec j et l.",

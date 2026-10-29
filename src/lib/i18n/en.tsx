@@ -87,6 +87,11 @@ export const en: Dict = {
     },
     speed: { title: "speed", description: "Words shown per minute." },
     chunkSize: { title: "words at once", description: "Number of words shown at the same time." },
+    wordStep: {
+      title: "arrow step",
+      description:
+        "Words (or word groups) skipped on each ← or → press. Hold shift for 10 times more.",
+    },
     skipSeconds: {
       title: "skip in seconds",
       description: "Reading time skipped back or forward with j and l.",

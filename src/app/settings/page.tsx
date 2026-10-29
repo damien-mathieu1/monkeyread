@@ -9,6 +9,7 @@ import {
   Sparkles,
   Languages,
   LayoutList,
+  MoveHorizontal,
   Pause,
   TriangleAlert,
   RotateCcw,
@@ -144,12 +145,40 @@ export default function SettingsPage() {
             title={t.settings.skipSeconds.title}
             description={t.settings.skipSeconds.description}
           >
-            <OptionButtons
-              columns={4}
-              options={[5, 10, 15, 30].map((n) => ({ value: n, label: `${n} s` }))}
-              value={settings.skipSeconds}
-              onChange={(v) => update("skipSeconds", v)}
-            />
+            <div className="grid gap-2">
+              <OptionButtons
+                columns={4}
+                options={[5, 10, 15, 30].map((n) => ({ value: n, label: `${n} s` }))}
+                value={settings.skipSeconds}
+                onChange={(v) => update("skipSeconds", v)}
+              />
+              <NumberInput
+                value={settings.skipSeconds}
+                min={1}
+                max={300}
+                onChange={(v) => update("skipSeconds", v)}
+              />
+            </div>
+          </Setting>
+          <Setting
+            icon={MoveHorizontal}
+            title={t.settings.wordStep.title}
+            description={t.settings.wordStep.description}
+          >
+            <div className="grid gap-2">
+              <OptionButtons
+                columns={4}
+                options={[1, 2, 5, 10].map((n) => ({ value: n, label: String(n) }))}
+                value={settings.wordStep}
+                onChange={(v) => update("wordStep", v)}
+              />
+              <NumberInput
+                value={settings.wordStep}
+                min={1}
+                max={100}
+                onChange={(v) => update("wordStep", v)}
+              />
+            </div>
           </Setting>
           <Setting
             icon={Highlighter}
