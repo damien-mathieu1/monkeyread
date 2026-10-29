@@ -28,6 +28,21 @@ export function tokenize(text: string): RsvpWord[] {
     }));
 }
 
+export type TimingOptions = {
+  punctuationPause: boolean;
+  /** Letters from which a word gets extra time; 0 turns it off. */
+  longWordLength: number;
+  /** Extra time for long words, as a fraction (0.5 = 50% longer). */
+  longWordExtra: number;
+};
+
+/** How many times longer than a plain word this word stays on screen. */
+export function durationFactor(w: RsvpWord, o: TimingOptions): number {
+  const letters = w.text.replace(/[^\p{L}\p{N}]/gu, "").length;
+  const long = o.longWordLength > 0 && letters >= o.longWordLength;
+  return (o.punctuationPause ? w.pauseMultiplier : 1) * (long ? 1 + o.longWordExtra : 1);
+}
+
 export function chunkWords(words: RsvpWord[], chunkSize: number): RsvpWord[][] {
   if (chunkSize <= 1) return words.map((w) => [w]);
   const chunks: RsvpWord[][] = [];

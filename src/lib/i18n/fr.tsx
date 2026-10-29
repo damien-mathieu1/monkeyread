@@ -85,6 +85,16 @@ export const fr = {
       description:
         "Reste plus longtemps sur les fins de phrase et les virgules pour laisser le temps au sens de se poser.",
     },
+    longWords: {
+      title: "mots longs",
+      description:
+        "Laisse les mots longs plus longtemps à l'écran, utile pour les mots composés (en allemand par exemple). Choisis à partir de combien de lettres.",
+      letters: (n: number) => `${n}+ lettres`,
+    },
+    longWordExtra: {
+      title: "temps en plus",
+      description: "Combien de temps en plus les mots longs restent affichés.",
+    },
     speed: { title: "vitesse", description: "Nombre de mots affichés par minute." },
     chunkSize: { title: "mots groupés", description: "Nombre de mots affichés en même temps." },
     highlight: {

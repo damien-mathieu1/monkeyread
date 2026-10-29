@@ -11,6 +11,8 @@ export type Settings = {
   wpm: number;
   chunkSize: number;
   punctuationPause: boolean;
+  longWordLength: number;
+  longWordExtra: number;
   quickRestart: "off" | "tab" | "esc";
   highlightLetter: boolean;
   showGuides: boolean;
@@ -30,6 +32,8 @@ export const DEFAULT_SETTINGS: Settings = {
   wpm: 250,
   chunkSize: 1,
   punctuationPause: true,
+  longWordLength: 0,
+  longWordExtra: 0.5,
   quickRestart: "tab",
   highlightLetter: true,
   showGuides: true,
