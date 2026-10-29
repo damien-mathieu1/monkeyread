@@ -58,7 +58,7 @@ export function OptionButtons<T extends string | number | boolean>({
   options: Option<T>[];
   value: T;
   onChange: (value: T) => void;
-  columns?: 1 | 2 | 3 | 4;
+  columns?: 1 | 2 | 3 | 4 | 5;
 }) {
   return (
     <div
@@ -67,6 +67,7 @@ export function OptionButtons<T extends string | number | boolean>({
         columns === 2 && "grid-cols-2",
         columns === 3 && "grid-cols-3",
         columns === 4 && "grid-cols-4",
+        columns === 5 && "grid-cols-5",
       )}
     >
       {options.map((o) => (

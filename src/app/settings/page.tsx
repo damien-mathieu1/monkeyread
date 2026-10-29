@@ -21,6 +21,7 @@ import {
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ON_OFF, OptionButtons, Section, Setting } from "@/components/settings/setting";
+import { CHUNK_SIZES } from "@/components/reader/config-bar";
 import { FONT_SIZES, WordDisplay } from "@/components/reader/word-display";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,8 +126,8 @@ export default function SettingsPage() {
             description={t.settings.chunkSize.description}
           >
             <OptionButtons
-              columns={3}
-              options={[1, 2, 3].map((n) => ({ value: n, label: String(n) }))}
+              columns={5}
+              options={CHUNK_SIZES.map((n) => ({ value: n, label: String(n) }))}
               value={settings.chunkSize}
               onChange={(v) => update("chunkSize", v)}
             />
