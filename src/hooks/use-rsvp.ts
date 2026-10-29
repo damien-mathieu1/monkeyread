@@ -67,13 +67,13 @@ export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
     [chunks.length, size],
   );
 
-  // Moves by roughly `seconds` of reading at the current pace (average pause, not exact timing).
+  // Moves by roughly `seconds` of reading at the current pace (average timing, not exact).
   const skip = useCallback(
     (seconds: number) => {
-      const chunkMs = msPerWord(settings.wpm) * size * (settings.punctuationPause ? avgPause : 1);
+      const chunkMs = msPerWord(settings.wpm) * size * avgFactor;
       step(Math.round((seconds * 1000) / chunkMs) || Math.sign(seconds));
     },
-    [step, settings.wpm, settings.punctuationPause, size, avgPause],
+    [step, settings.wpm, size, avgFactor],
   );
 
   return {
