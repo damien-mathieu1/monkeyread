@@ -40,6 +40,7 @@ export const en: Dict = {
     space: "space",
     playPause: "play / pause",
     prevNext: "previous / next word",
+    skip: (s: number) => `−/+ ${s} s`,
     speed: "speed ±25",
     chunk: "words at once",
   },
@@ -86,6 +87,15 @@ export const en: Dict = {
     },
     speed: { title: "speed", description: "Words shown per minute." },
     chunkSize: { title: "words at once", description: "Number of words shown at the same time." },
+    wordStep: {
+      title: "arrow step",
+      description:
+        "Words (or word groups) skipped on each ← or → press. Hold shift for 10 times more.",
+    },
+    skipSeconds: {
+      title: "skip in seconds",
+      description: "Reading time skipped back or forward with j and l.",
+    },
     highlight: {
       title: "highlighted letter",
       description: "Colors the letter your eye should land on.",

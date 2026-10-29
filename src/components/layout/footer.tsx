@@ -42,7 +42,8 @@ function KeyTips({ settings }: { settings: Settings }) {
         <Kbd>{t.keys.space}</Kbd> - {t.keys.playPause}
       </div>
       <div>
-        <Kbd>←</Kbd> <Kbd>→</Kbd> - {t.keys.prevNext}
+        <Kbd>←</Kbd> <Kbd>→</Kbd> - {t.keys.prevNext} · <Kbd>j</Kbd> <Kbd>l</Kbd> -{" "}
+        {t.keys.skip(settings.skipSeconds)}
       </div>
       <div>
         <Kbd>↑</Kbd> <Kbd>↓</Kbd> - {t.keys.speed} · <Kbd>1–5</Kbd> - {t.keys.chunk} · <Kbd>p</Kbd>{" "}
