@@ -18,6 +18,8 @@ import {
   Volume2,
   VolumeX,
   Highlighter,
+  Hourglass,
+  Ruler,
   Palette,
 } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
@@ -105,6 +107,35 @@ export default function SettingsPage() {
               onChange={(v) => update("punctuationPause", v)}
             />
           </Setting>
+          <Setting
+            icon={Ruler}
+            title={t.settings.longWords.title}
+            description={t.settings.longWords.description}
+          >
+            <OptionButtons
+              columns={4}
+              options={[0, 8, 10, 12].map((n) => ({
+                value: n,
+                label: n ? t.settings.longWords.letters(n) : "off",
+              }))}
+              value={settings.longWordLength}
+              onChange={(v) => update("longWordLength", v)}
+            />
+          </Setting>
+          {settings.longWordLength > 0 && (
+            <Setting
+              icon={Hourglass}
+              title={t.settings.longWordExtra.title}
+              description={t.settings.longWordExtra.description}
+            >
+              <OptionButtons
+                columns={3}
+                options={[0.25, 0.5, 1].map((n) => ({ value: n, label: `+${n * 100}%` }))}
+                value={settings.longWordExtra}
+                onChange={(v) => update("longWordExtra", v)}
+              />
+            </Setting>
+          )}
         </Section>
 
         <Section title={t.settings.sections.reading}>

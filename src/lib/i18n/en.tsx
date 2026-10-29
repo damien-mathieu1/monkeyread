@@ -85,6 +85,16 @@ export const en: Dict = {
       title: "punctuation pause",
       description: "Stay longer on sentence ends and commas to give the meaning time to sink in.",
     },
+    longWords: {
+      title: "long words",
+      description:
+        "Keeps long words on screen longer, handy for compound words (in German for example). Pick from how many letters.",
+      letters: (n: number) => `${n}+ letters`,
+    },
+    longWordExtra: {
+      title: "extra time",
+      description: "How much longer long words stay on screen.",
+    },
     speed: { title: "speed", description: "Words shown per minute." },
     chunkSize: { title: "words at once", description: "Number of words shown at the same time." },
     wordStep: {

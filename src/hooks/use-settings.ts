@@ -13,6 +13,8 @@ export type Settings = {
   skipSeconds: number;
   wordStep: number;
   punctuationPause: boolean;
+  longWordLength: number;
+  longWordExtra: number;
   quickRestart: "off" | "tab" | "esc";
   highlightLetter: boolean;
   showGuides: boolean;
@@ -34,6 +36,8 @@ export const DEFAULT_SETTINGS: Settings = {
   skipSeconds: 10,
   wordStep: 1,
   punctuationPause: true,
+  longWordLength: 0,
+  longWordExtra: 0.5,
   quickRestart: "tab",
   highlightLetter: true,
   showGuides: true,

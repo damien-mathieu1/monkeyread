@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { chunkWords, msPerWord, tokenize } from "@/lib/rsvp";
+import { chunkWords, durationFactor, msPerWord, tokenize, type TimingOptions } from "@/lib/rsvp";
 
-export type RsvpSettings = {
+export type RsvpSettings = TimingOptions & {
   wpm: number;
   chunkSize: number;
-  punctuationPause: boolean;
 };
 
 /** `startWord` is where a new text begins, e.g. a saved position; changing it jumps there. */
@@ -14,9 +13,14 @@ export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
   const words = useMemo(() => tokenize(text), [text]);
   const size = settings.chunkSize;
   const chunks = useMemo(() => chunkWords(words, size), [words, size]);
-  const avgPause = useMemo(
-    () => words.reduce((sum, w) => sum + w.pauseMultiplier, 0) / (words.length || 1),
-    [words],
+  const { punctuationPause, longWordLength, longWordExtra } = settings;
+  const timing = useMemo(
+    () => ({ punctuationPause, longWordLength, longWordExtra }),
+    [punctuationPause, longWordLength, longWordExtra],
+  );
+  const avgFactor = useMemo(
+    () => words.reduce((sum, w) => sum + durationFactor(w, timing), 0) / (words.length || 1),
+    [words, timing],
   );
 
   // Position is kept in words, so changing the chunk size doesn't lose the place.
@@ -33,13 +37,10 @@ export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
       return;
     }
     const base = msPerWord(settings.wpm);
-    const duration = chunks[index].reduce(
-      (sum, w) => sum + base * (settings.punctuationPause ? w.pauseMultiplier : 1),
-      0,
-    );
+    const duration = chunks[index].reduce((sum, w) => sum + base * durationFactor(w, timing), 0);
     const id = setTimeout(() => setWord((index + 1) * size), duration);
     return () => clearTimeout(id);
-  }, [playing, index, chunks, size, settings.wpm, settings.punctuationPause]);
+  }, [playing, index, chunks, size, settings.wpm, timing]);
 
   const reset = useCallback(() => {
     setPlaying(false);
@@ -81,10 +82,7 @@ export function useRsvp(text: string, settings: RsvpSettings, startWord = 0) {
     word: Math.min(word, words.length),
     total: chunks.length,
     totalWords: words.length,
-    remainingMs:
-      Math.max(0, words.length - word) *
-      msPerWord(settings.wpm) *
-      (settings.punctuationPause ? avgPause : 1),
+    remainingMs: Math.max(0, words.length - word) * msPerWord(settings.wpm) * avgFactor,
     playing,
     done,
     toggle,
