@@ -288,6 +288,10 @@ export const en: Dict = {
     },
     empty: "nobody has read in this period yet",
   },
+  offline: {
+    title: "offline",
+    body: "This page needs the internet. The reader, your library and your settings work without a connection.",
+  },
   docs: {
     about: [
       {

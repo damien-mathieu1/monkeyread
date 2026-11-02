@@ -4,6 +4,55 @@ import { useCallback, useEffect, useRef } from "react";
 import type { User } from "@supabase/supabase-js";
 import type { RsvpWord } from "@/lib/rsvp";
 import { supabase } from "@/lib/supabase";
+import type { TablesInsert } from "@/lib/database.types";
+
+type SessionRow = TablesInsert<"reading_sessions">;
+type Pending = { userId: string; row: SessionRow };
+
+// Sessions read offline wait here and are sent when the network is back.
+const PENDING_KEY = "monkeyread-pending-sessions";
+
+function readPending(): Pending[] {
+  try {
+    return JSON.parse(localStorage.getItem(PENDING_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writePending(list: Pending[]) {
+  try {
+    if (list.length) localStorage.setItem(PENDING_KEY, JSON.stringify(list));
+    else localStorage.removeItem(PENDING_KEY);
+  } catch {}
+}
+
+/** Saves a session; offline, it is queued instead of lost. Server rejections are dropped. */
+async function saveSession(userId: string, row: SessionRow) {
+  const { error } = await supabase.from("reading_sessions").insert(row);
+  if (!error) return true;
+  if (!navigator.onLine) writePending([...readPending(), { userId, row }]);
+  else console.warn("reading session not saved:", error.message);
+  return false;
+}
+
+let sending = false;
+
+/** Sends this user's queued sessions in order, stopping at the first one still offline. */
+async function sendPending(userId: string) {
+  if (sending || !navigator.onLine) return;
+  sending = true;
+  try {
+    for (const item of readPending().filter((p) => p.userId === userId)) {
+      // Dequeue first; saveSession queues it again if the network drops meanwhile.
+      const same = (p: Pending) => p.userId === userId && p.row.started_at === item.row.started_at;
+      writePending(readPending().filter((p) => !same(p)));
+      if (!(await saveSession(userId, item.row)) && !navigator.onLine) break;
+    }
+  } finally {
+    sending = false;
+  }
+}
 
 type Input = {
   user: User | null;
@@ -43,20 +92,25 @@ export function useSessionRecorder(input: Input) {
     const maxWords = Math.ceil((activeMs * d.maxWpm) / 60000) + d.chunkSize;
     const words = Math.min(d.words, maxWords, d.totalWords);
     if (words < 1 || activeMs < 1000) return;
-    // Query builders are lazy: the request only fires once awaited or then-ed.
-    void supabase
-      .from("reading_sessions")
-      .insert({
-        started_at: new Date(d.startedAt).toISOString(),
-        duration_ms: Math.round(Math.min(activeMs, 21600000)),
-        words_read: words,
-        total_words: d.totalWords,
-        wpm: d.maxWpm,
-        chunk_size: d.chunkSize,
-        completed,
-      })
-      .then(({ error }) => error && console.warn("reading session not saved:", error.message));
+    void saveSession(latest.current.user.id, {
+      started_at: new Date(d.startedAt).toISOString(),
+      duration_ms: Math.round(Math.min(activeMs, 21600000)),
+      words_read: words,
+      total_words: d.totalWords,
+      wpm: d.maxWpm,
+      chunk_size: d.chunkSize,
+      completed,
+    });
   }, []);
+
+  const userId = input.user?.id;
+  useEffect(() => {
+    if (!userId) return;
+    const send = () => void sendPending(userId);
+    send();
+    window.addEventListener("online", send);
+    return () => window.removeEventListener("online", send);
+  }, [userId]);
 
   const { playing, done, index, wpm, sourceKey } = input;
 
