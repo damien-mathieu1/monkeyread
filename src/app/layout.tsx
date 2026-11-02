@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { SerwistProvider } from "@serwist/turbopack/react";
 import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { OfflineLinks } from "@/components/layout/offline-links";
 import { I18nProvider } from "@/lib/i18n";
 import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
@@ -16,7 +18,11 @@ export const metadata: Metadata = {
   description,
   openGraph: { title, description, url: "/", siteName: "monkeyread", type: "website" },
   twitter: { card: "summary_large_image", title, description },
+  appleWebApp: { capable: true, title: "monkeyread", statusBarStyle: "black-translucent" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
+
+export const viewport: Viewport = { themeColor: "#323437" };
 
 // Applies saved theme and font before first paint to avoid a flash.
 const bootScript = `try{var s=JSON.parse(localStorage.getItem("monkeyread-settings"));var d=document.documentElement.dataset;if(s.theme)d.theme=s.theme;if(s.fontFamily)d.font=s.fontFamily}catch(e){}`;
@@ -34,11 +40,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <I18nProvider>
-          <AuthProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </AuthProvider>
-        </I18nProvider>
+        <SerwistProvider swUrl="/sw.js" disable={process.env.NODE_ENV === "development"}>
+          <I18nProvider>
+            <AuthProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </AuthProvider>
+          </I18nProvider>
+        </SerwistProvider>
+        <OfflineLinks />
         <Analytics />
       </body>
     </html>

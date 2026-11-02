@@ -289,6 +289,10 @@ export const fr = {
     },
     empty: "personne n'a encore lu sur cette période",
   },
+  offline: {
+    title: "hors ligne",
+    body: "Cette page a besoin d'internet. Le lecteur, ta bibliothèque et tes réglages marchent sans connexion.",
+  },
   docs: {
     about: [
       {

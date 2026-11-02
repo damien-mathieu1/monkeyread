@@ -185,7 +185,11 @@ export function Footer({ settings }: { settings?: Settings }) {
 
   return (
     <footer className="grid gap-8 text-xs text-muted-foreground">
-      {settings?.showKeyTips && <KeyTips settings={settings} />}
+      {settings?.showKeyTips && (
+        <div className="pointer-coarse:hidden">
+          <KeyTips settings={settings} />
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <nav className="flex flex-wrap">
           <FooterLink icon={Mail} onClick={() => setDialog("contact")}>

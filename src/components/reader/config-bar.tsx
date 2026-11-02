@@ -75,7 +75,7 @@ export function ConfigBar({ settings, update, onCustomText }: Props) {
   };
 
   return (
-    <div className="flex w-max gap-2 rounded-lg bg-muted px-2 text-xs">
+    <div className="flex w-max max-w-full flex-wrap justify-center gap-x-2 rounded-lg bg-muted px-2 text-xs">
       <Hint keys={["p"]}>
         <Option
           active={settings.punctuationPause}

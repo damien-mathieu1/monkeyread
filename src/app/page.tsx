@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRsvp } from "@/hooks/use-rsvp";
 import { useSettings } from "@/hooks/use-settings";
@@ -15,6 +15,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CHUNK_SIZES, ConfigBar } from "@/components/reader/config-bar";
 import { CustomTextDialog } from "@/components/reader/custom-text-dialog";
+import { TouchControls } from "@/components/reader/touch-controls";
 import { WordDisplay } from "@/components/reader/word-display";
 
 const WPM_STEP = 25;
@@ -119,11 +120,12 @@ export default function Home() {
     return () => window.removeEventListener("mousemove", onMove);
   }, [focused]);
 
+  const restart = useCallback(() => {
+    reset();
+    setRunId((n) => n + 1);
+  }, [reset]);
+
   useEffect(() => {
-    const restart = () => {
-      reset();
-      setRunId((n) => n + 1);
-    };
     const onKeyDown = (e: KeyboardEvent) => {
       if (
         textDialogOpen ||
@@ -168,7 +170,7 @@ export default function Home() {
   }, [
     textDialogOpen,
     toggle,
-    reset,
+    restart,
     step,
     skip,
     update,
@@ -186,7 +188,7 @@ export default function Home() {
   const progress = rsvp.total ? rsvp.index / rsvp.total : 0;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-8 py-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       {settings.progressStyle === "bar" && (
         <div
           className="fixed top-0 left-0 h-1 bg-primary transition-all duration-125"
@@ -199,7 +201,7 @@ export default function Home() {
       </div>
 
       <main className="flex flex-1 flex-col items-center justify-center gap-8">
-        <div className={focusFade}>
+        <div className={cn("max-w-full", focusFade)}>
           <ConfigBar
             settings={settings}
             update={update}
@@ -215,7 +217,7 @@ export default function Home() {
           )}
           <span
             className={cn(
-              "h-8 text-primary",
+              "min-h-8 text-primary",
               settings.progressStyle === "text" && "text-2xl",
               settings.progressStyle === "mini" && "text-sm",
               (settings.progressStyle === "off" || settings.progressStyle === "bar") && "invisible",
@@ -232,12 +234,22 @@ export default function Home() {
               </span>
             )}
           </span>
-          <WordDisplay
-            chunk={rsvp.currentChunk}
-            ended={rsvp.done}
-            highlight={settings.highlightLetter}
-            guides={settings.showGuides}
-            fontSize={settings.fontSize}
+          {/* Tapping the word plays or pauses, the touch equivalent of space. */}
+          <div onClick={toggle}>
+            <WordDisplay
+              chunk={rsvp.currentChunk}
+              ended={rsvp.done}
+              highlight={settings.highlightLetter}
+              guides={settings.showGuides}
+              fontSize={settings.fontSize}
+            />
+          </div>
+          <TouchControls
+            playing={playing}
+            skipSeconds={settings.skipSeconds}
+            onRestart={restart}
+            onSkip={skip}
+            onToggle={toggle}
           />
         </div>
       </main>
