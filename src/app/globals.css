@@ -151,4 +151,13 @@
   ::selection {
     @apply bg-primary text-primary-foreground;
   }
+  /* No browser up/down spinner on number fields. */
+  input[type="number"] {
+    appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
 }
